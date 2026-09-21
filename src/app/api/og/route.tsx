@@ -3,13 +3,11 @@ import { SITE_NAME, SITE_URL, SITE_TAGLINE } from '@/lib/config';
 
 export const runtime = 'edge';
 
-export const alt = `${SITE_NAME} — free English test preparation`;
-
 /**
- * Images Open Graph dynamiques (1200×630).
+ * Route handler GET — Images Open Graph dynamiques (1200×630).
  * variant=share : carte de partage avec bande From → To.
  */
-export default async function OgImage(req: Request) {
+export async function GET(req: Request) {
   const url = new URL(req.url);
   const title = (url.searchParams.get('title') ?? SITE_TAGLINE).slice(0, 70);
   const overline = url.searchParams.get('overline') ?? 'Free English test preparation';

@@ -37,7 +37,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const userId = event.data?.object?.metadata?.user_id ?? null;
+  const object = event.data?.object;
+  const userId =
+    object && 'metadata' in object && typeof object.metadata === 'object' && object.metadata !== null
+      ? (object.metadata.user_id ?? null)
+      : null;
 
   switch (event.type) {
     case 'checkout.session.completed': {

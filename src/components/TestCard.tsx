@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import {
   BookOpen,
+  Briefcase,
   GraduationCap,
   Headphones,
   Languages,
@@ -14,15 +15,11 @@ import { type ExamInfo } from '@/lib/exams';
 
 const iconFor: Record<string, LucideIcon> = {
   toefl: Languages,
-  toeic: BriefcaseIcon,
+  toeic: Briefcase,
   ielts: BookOpen,
   cambridge: GraduationCap,
   duolingo: Mic,
 };
-
-function BriefcaseIcon(props: React.ComponentProps<typeof Languages>) {
-  return <Languages {...props} />;
-}
 
 export default function TestCard({ exam }: { exam: ExamInfo }) {
   const Icon = iconFor[exam.key] ?? Languages;

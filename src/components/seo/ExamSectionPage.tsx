@@ -7,6 +7,7 @@ import InternalLinks from '@/components/seo/InternalLinks';
 import CtaBanner from '@/components/seo/CtaBanner';
 import Button from '@/components/ui/button';
 import type { SeoPageData } from '@/content/types';
+import type { Crumb } from '@/lib/seo';
 
 function labelForPart(part: string): string {
   return part.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -27,7 +28,7 @@ export default function ExamSectionPage({
   examSlug: string;
 }) {
   const parts = data.slug.split('/');
-  const crumbs = [{ label: 'Home', href: '/' }, { label: examLabel, href: `/${examSlug}` }];
+  const crumbs: Crumb[] = [{ label: 'Home', href: '/' }, { label: examLabel, href: `/${examSlug}` }];
   let acc = `/${examSlug}`;
   parts.slice(0, -1).forEach((part) => {
     acc = `${acc}/${part}`;
