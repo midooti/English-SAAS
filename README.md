@@ -34,10 +34,11 @@ npm run build     # build production Next.js
 
 ## Authentification & abonnements
 
-- **Auth réelle** : une fois `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` renseignées, les formulaires utilisent Supabase Auth (signup, login, reset de mot de passe, session via cookies). En développement sans clés, un cookie de session local (`prep_user`) permet de tester le parcours — il n'est jamais présenté comme une fonctionnalité « démo ».
+- **Auth réelle** : une fois `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` renseignées, les formulaires utilisent Supabase Auth (signup, login, reset de mot de passe, session via cookies). En développement sans clés, un cookie de session local (`prep_user`) permet de tester le parcours — il n'est jamais présenté comme une fonctionnalité « démo ».
 - **Freemium** : 5 questions gratuites par jour (`FREE_DAILY_LIMIT`), comptées en `localStorage` ; au-delà, un écran d'information propose l'abonnement.
 - **Premium** : vérifié **côté serveur** à chaque requête depuis `profiles.plan`, synchronisée par le webhook Stripe. Les valeurs client ne sont jamais fiables.
-- **Stripe** : `/api/checkout` crée la session, `/api/portal` ouvre l'espace de facturation, `/api/webhook` synchronise `subscriptions` et met à jour `profiles.plan`. Événements traités : `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`.
+- **Stripe** : `/api/checkout` crée la session (Price ID résolu côté serveur depuis `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_YEARLY`), `/api/portal` ouvre l'espace de facturation, `/api/stripe/webhook` vérifie la signature (`STRIPE_WEBHOOK_SECRET`) puis synchronise `subscriptions` et met à jour `profiles.plan`. Événements traités : `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`. Aucun mode test/démo : les abonnements passent par Stripe Checkout réel.
+- **Sécurité** : aucun secret Stripe/Supabase n'est importé dans un composant client ; le statut Premium n'est jamais déduit d'un cookie.
 - **Pages protégées** : `/dashboard`, `/progress`, `/account`, `/coach` (redirection vers `/login` sans session).
 
 ## Variables d'environnement
@@ -48,13 +49,13 @@ Copier `.env.example` vers `.env.local` :
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | non | URL canonique (défaut `http://localhost:3000`) |
 | `NEXT_PUBLIC_CURRENCY` | non | Devise affichée : `EUR` (défaut), `USD`, `GBP` |
-| `NEXT_PUBLIC_SUPABASE_URL` | non | URL du projet Supabase (activation de l'auth réelle) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | non | Clé anon Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | non | Client admin — API serveur uniquement (webhook) |
-| `STRIPE_SECRET_KEY` | non | Clé secrète Stripe (`sk_test...`) |
-| `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_YEARLY` | non | IDs de Price côté serveur (prioritaires si définis) |
-| `NEXT_PUBLIC_STRIPE_PREMIUM_MONTHLY_PRICE_ID` / `_YEARLY_` | non | IDs de Price publics (fallback) |
-| `STRIPE_WEBHOOK_SECRET` | non | Secret de signature du webhook (`whsec_...`) |
+| `NEXT_PUBLIC_SUPABASE_URL` | oui | URL du projet Supabase |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | oui | Clé publiable navigateur (`anon` accepté en fallback) |
+| `SUPABASE_SECRET_KEY` | oui | Clé secrète — API serveur uniquement (`service_role` accepté en fallback) |
+| `STRIPE_SECRET_KEY` | oui | Clé secrète Stripe (serveur uniquement) |
+| `STRIPE_PRICE_MONTHLY` | oui | Price ID du plan 9,99 €/mois (serveur uniquement) |
+| `STRIPE_PRICE_YEARLY` | oui | Price ID du plan 59,99 €/an (serveur uniquement) |
+| `STRIPE_WEBHOOK_SECRET` | oui | Secret de signature du webhook (`whsec_...`) |
 | `OPENAI_API_KEY` | non | Active l'Assistant de préparation réel |
 | `NEXT_PUBLIC_GA_ID` / `NEXT_PUBLIC_GA_MEASUREMENT_ID` | non | Google Analytics 4 (événements anonymes, sans PII) |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` / `NEXT_PUBLIC_GSC_VERIFICATION` | non | Vérification Google Search Console |
@@ -83,9 +84,9 @@ Prep-Anglais est construit « SEO-first » ; le contenu est centralisé pour ali
 1. Créer deux produits d'abonnement dans le dashboard Stripe :
    - **Premium Mensuel** — 9,99 €/mois
    - **Premium Annuel** — 59,99 €/an (meilleure valeur)
-2. Copier les IDs de Price dans `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_YEARLY` (ou les variables `NEXT_PUBLIC_STRIPE_*_PRICE_ID`).
-3. Ajouter l'endpoint webhook `https://votre-domaine.com/api/webhook` (événements : `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`) et copier le secret de signature.
-4. Routes : `/api/checkout` (session), `/api/webhook` (synchronisation), `/api/portal` (espace de facturation).
+2. Copier les IDs de Price dans `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_YEARLY` (variables serveur, jamais `NEXT_PUBLIC_`).
+3. Ajouter l'endpoint webhook `https://votre-domaine.com/api/stripe/webhook` (événements : `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`) et copier le secret de signature dans `STRIPE_WEBHOOK_SECRET`.
+4. Routes : `/api/checkout` (session), `/api/stripe/webhook` (synchronisation signée — `/api/webhook` reste disponible comme alias), `/api/portal` (espace de facturation).
 
 ## Déploiement sur Vercel
 

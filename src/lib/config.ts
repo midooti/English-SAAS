@@ -36,14 +36,9 @@ export type Plan = {
   features: string[];
   bestValue: boolean;
   ctaLabel: string;
-  /**
-   * id de Price Stripe — lu dans l'ordre : NEXT_PUBLIC_... puis
-   * STRIPE_PRICE_MONTHLY / STRIPE_PRICE_YEARLY (production). Jamais inventé.
-   */
-  priceId: string;
 };
 
-const PLANS_RAW: Omit<Plan, 'priceId'>[] = [
+export const PLANS: Plan[] = [
   {
     slug: 'premium_monthly',
     name: 'Premium mensuel',
@@ -77,18 +72,6 @@ const PLANS_RAW: Omit<Plan, 'priceId'>[] = [
   },
 ];
 
-export const PLANS: Plan[] = PLANS_RAW.map((plan) => ({
-  ...plan,
-  priceId:
-    plan.slug === 'premium_monthly'
-      ? (process.env.NEXT_PUBLIC_STRIPE_PREMIUM_MONTHLY_PRICE_ID ??
-        process.env.STRIPE_PRICE_MONTHLY ??
-        '')
-      : (process.env.NEXT_PUBLIC_STRIPE_PREMIUM_YEARLY_PRICE_ID ??
-        process.env.STRIPE_PRICE_YEARLY ??
-        ''),
-}));
-
 export const PLANS_BY_SLUG: Record<PlanSlug, Plan> = {
   premium_monthly: PLANS[0],
   premium_yearly: PLANS[1],
@@ -108,9 +91,11 @@ export const FREE_PLAN = {
   ],
 } as const;
 
-/** Supabase configuré ? */
+/** Supabase configuré ? (les deux nommages sont acceptés : publishable/anon). */
 export const HAS_SUPABASE = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 );
 
 /**

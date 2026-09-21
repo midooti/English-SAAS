@@ -12,9 +12,13 @@ import type { TypedSupabase } from '@/lib/supabase';
 
 export function createSupabaseBrowser(): TypedSupabase {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anon) {
-    throw new Error('Supabase non configuré : renseignez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+  const publishable =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !publishable) {
+    throw new Error(
+      'Supabase non configuré : renseignez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.'
+    );
   }
-  return createBrowserClient<TypedSupabase>(url, anon) as unknown as TypedSupabase;
+  return createBrowserClient<TypedSupabase>(url, publishable) as unknown as TypedSupabase;
 }

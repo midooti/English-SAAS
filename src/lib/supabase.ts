@@ -41,7 +41,10 @@ export type SubscriptionRow = {
   user_id: string;
   plan: 'premium_monthly' | 'premium_yearly';
   status: SubscriptionStatus;
+  stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  price_id: string | null;
+  current_period_start: string | null;
   current_period_end: string | null;
   cancel_at_period_end?: boolean;
   created_at?: string;
@@ -101,9 +104,12 @@ export type Database = {
   };
 };
 
-function requireEnv(name: string, hint: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`Variable manquante : ${name}. ${hint}`);
+function requireEnv(name: string, hint: string, fallbackName?: string): string {
+  const value = process.env[name] ?? (fallbackName ? process.env[fallbackName] : undefined);
+  if (!value) {
+    const fallback = fallbackName ? ` (ou ${fallbackName})` : '';
+    throw new Error(`Variable manquante : ${name}${fallback}. ${hint}`);
+  }
   return value;
 }
 
@@ -117,9 +123,13 @@ export type TypedSupabase = SupabaseClient<Database>;
 /** Client serveur (Server Components / route handlers) via cookies. */
 export function createSupabaseServer(): TypedSupabase {
   const url = requireEnv('NEXT_PUBLIC_SUPABASE_URL', 'Renseignez Supabase.');
-  const anon = requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'Clé "anon".');
+  const publishable = requireEnv(
+    'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+    'Clé publiable (publishable ou anon).',
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY'
+  );
   const store = cookies();
-  return createServerClient<Database>(url, anon, {
+  return createServerClient<Database>(url, publishable, {
     cookies: {
       getAll() {
         return store.getAll();
@@ -135,11 +145,15 @@ export function createSupabaseServer(): TypedSupabase {
   }) as unknown as TypedSupabase;
 }
 
-/** Client "service role" — réservé aux route handlers serveur (webhook). */
+/** Client "secret" — réservé aux route handlers serveur (webhook Stripe). */
 export function createSupabaseAdmin(): TypedSupabase {
   const url = requireEnv('NEXT_PUBLIC_SUPABASE_URL', 'Renseignez Supabase.');
-  const roleKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY', 'Clé "service_role".');
-  return createClient<Database>(url, roleKey, {
+  const secretKey = requireEnv(
+    'SUPABASE_SECRET_KEY',
+    'Clé secrète (secret ou service_role).',
+    'SUPABASE_SERVICE_ROLE_KEY'
+  );
+  return createClient<Database>(url, secretKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   }) as unknown as TypedSupabase;
 }

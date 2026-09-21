@@ -167,12 +167,20 @@ create table if not exists public.subscriptions (
   status text not null default 'incomplete' check (
     status in ('incomplete','incomplete_expired','trialing','active','past_due','canceled','unpaid')
   ),
+  stripe_customer_id text,
   stripe_subscription_id text unique,
+  price_id text,
+  current_period_start timestamptz,
   current_period_end timestamptz,
   cancel_at_period_end boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Migration idempotente pour les bases déjà créées.
+alter table public.subscriptions add column if not exists stripe_customer_id text;
+alter table public.subscriptions add column if not exists price_id text;
+alter table public.subscriptions add column if not exists current_period_start timestamptz;
 
 -- Passe le profil en premium / free selon l'abonnement actif
 create or replace function public.sync_premium()
@@ -270,3 +278,5 @@ create index if not exists idx_questions_exam_skill on public.questions(exam, sk
 create index if not exists idx_attempts_user on public.attempts(user_id, completed_at desc);
 create index if not exists idx_scores_user on public.scores(user_id, created_at desc);
 create index if not exists idx_flashcards_review on public.flashcards(user_id, next_review_at);
+create index if not exists idx_subscriptions_user on public.subscriptions(user_id, created_at desc);
+create index if not exists idx_subscriptions_customer on public.subscriptions(stripe_customer_id);

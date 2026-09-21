@@ -133,7 +133,10 @@ export async function getSubscription(user: User): Promise<SubscriptionRow | nul
           user_id: user.id,
           plan: 'premium_monthly',
           status: 'active',
+          stripe_customer_id: null,
           stripe_subscription_id: null,
+          price_id: null,
+          current_period_start: null,
           current_period_end: null,
         }
       : null;

@@ -8,9 +8,10 @@ import { type PlanSlug } from '@/lib/config';
 
 /**
  * Bouton « Souscrire à Premium » :
- * - Stripe configuré      -> POST /api/checkout puis redirection Checkout.
- * - Stripe non configuré  -> message d'erreur franc (« service indisponible »),
- *                            jamais d'activation de démo fantôme.
+ * - POST /api/checkout (Price ID résolu côté serveur selon le plan) ;
+ * - redirection vers Stripe Checkout ;
+ * - si l'utilisateur n'est pas connecté, redirection vers la connexion
+ *   puis retour automatique vers la page de tarifs.
  */
 export default function PricingButton({
   plan,
@@ -39,21 +40,22 @@ export default function PricingButton({
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
 
       if (res.ok && data.url) {
+        setMessage('Redirection vers Stripe…');
         window.location.href = data.url;
         return;
       }
 
-      if (res.status === 503) {
-        setMessage(
-          'Les paiements en ligne ne sont pas encore activés sur cette plateforme de test. Revenez plus tard.'
-        );
+      if (res.status === 401) {
+        router.push('/login?redirect=/pricing');
         return;
       }
 
-      setMessage(data.error ?? 'Impossible de lancer la souscription. Réessayez dans quelques instants.');
+      setMessage(
+        data.error ?? 'Impossible de lancer la souscription. Réessayez dans quelques instants.'
+      );
+      setBusy(false);
     } catch {
       setMessage('Impossible de lancer la souscription. Réessayez dans quelques instants.');
-    } finally {
       setBusy(false);
     }
   }
@@ -61,15 +63,10 @@ export default function PricingButton({
   return (
     <div className={className}>
       <Button variant={variant} size="lg" className={cn('w-full')} onClick={checkout} disabled={busy}>
-        {busy ? 'Redirection…' : label}
+        {busy ? 'Redirection vers Stripe…' : label}
       </Button>
 
-      {message && message.startsWith('Les paiements') && (
-        <p className="mt-3 text-center text-xs leading-relaxed text-ink-faint dark:text-slate-500">
-          {message}
-        </p>
-      )}
-      {message && !message.startsWith('Les paiements') && (
+      {message && (
         <p className="mt-3 text-center text-xs leading-relaxed text-ink-soft dark:text-slate-400">
           {message}
         </p>

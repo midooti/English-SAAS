@@ -27,6 +27,14 @@ const copy: Record<Mode, { title: string; subtitle: string; submit: string }> = 
   },
 };
 
+/** Cible de redirection après connexion : chemin interne uniquement. */
+function safeRedirect(): string {
+  if (typeof window === 'undefined') return '/dashboard';
+  const target = new URLSearchParams(window.location.search).get('redirect');
+  if (target && target.startsWith('/') && !target.startsWith('//')) return target;
+  return '/dashboard';
+}
+
 export default function AuthCard({ mode }: { mode: Mode }) {
   const router = useRouter();
   const [resetDone, setResetDone] = useState(false);
@@ -75,7 +83,7 @@ export default function AuthCard({ mode }: { mode: Mode }) {
       return;
     }
 
-    router.push('/dashboard');
+    router.push(safeRedirect());
     router.refresh();
   }
 

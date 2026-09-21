@@ -1,9 +1,12 @@
 /**
  * lib/stripe.ts — Client Stripe paresseux + indicateur de configuration.
  * Le module reste inoffensif au build même si STRIPE_SECRET_KEY est absente.
+ *
+ * SERVER-ONLY : STRIPE_SECRET_KEY et les Price IDs ne sont jamais exposés au
+ * navigateur (aucune variable NEXT_PUBLIC_ ici).
  */
 import Stripe from 'stripe';
-import { PLANS_BY_SLUG, type PlanSlug } from '@/lib/config';
+import type { PlanSlug } from '@/lib/config';
 
 let cached: Stripe | null = null;
 
@@ -20,9 +23,19 @@ export function getStripe(): Stripe {
   return cached;
 }
 
+/** Price IDs (jamais codés en dur, jamais exposés au client). */
+export const PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY ?? '';
+export const PRICE_YEARLY = process.env.STRIPE_PRICE_YEARLY ?? '';
+
 /**
  * Retourne l'ID de Price Stripe d'un plan, ou null s'il n'est pas configuré.
  */
-export function getPriceIdForPlan(slug: PlanSlug) {
-  return PLANS_BY_SLUG[slug].priceId || null;
+export function getPriceIdForPlan(slug: PlanSlug): string | null {
+  const id = slug === 'premium_yearly' ? PRICE_YEARLY : PRICE_MONTHLY;
+  return id || null;
+}
+
+/** Détermine le slug de plan à partir d'un Price ID Stripe. */
+export function planSlugForPriceId(priceId: string | null | undefined): PlanSlug {
+  return priceId && priceId === PRICE_YEARLY ? 'premium_yearly' : 'premium_monthly';
 }
