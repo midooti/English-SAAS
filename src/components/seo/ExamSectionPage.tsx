@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Layers, Wand2 } from 'lucide-react';
 import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import BlocksRenderer from '@/components/seo/BlocksRenderer';
 import FaqSection from '@/components/seo/FaqSection';
@@ -28,7 +27,7 @@ export default function ExamSectionPage({
   examSlug: string;
 }) {
   const parts = data.slug.split('/');
-  const crumbs: Crumb[] = [{ label: 'Home', href: '/' }, { label: examLabel, href: `/${examSlug}` }];
+  const crumbs: Crumb[] = [{ label: 'Accueil', href: '/' }, { label: examLabel, href: `/${examSlug}` }];
   let acc = `/${examSlug}`;
   parts.slice(0, -1).forEach((part) => {
     acc = `${acc}/${part}`;
@@ -37,10 +36,10 @@ export default function ExamSectionPage({
   crumbs.push({ label: labelForPart(parts[parts.length - 1]) });
 
   const cta = data.cta ?? {
-    title: 'Start with a free diagnostic',
-    text: 'Estimate your current English level in 10 minutes, then practise with a plan.',
+    title: 'Commencez par un diagnostic gratuit',
+    text: 'Estimez votre niveau d\u2019anglais actuel en 10 minutes, puis entraînez-vous avec un plan.',
     href: '/diagnostic',
-    label: 'Free diagnostic',
+    label: 'Diagnostic gratuit',
   };
 
   return (
@@ -48,13 +47,11 @@ export default function ExamSectionPage({
       <Breadcrumbs items={crumbs} />
 
       <header>
-        <p className="text-sm font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">
-          {examLabel} preparation
-        </p>
-        <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
+        <p className="micro-label">Préparation {examLabel}</p>
+        <h1 className="mt-3 font-serif text-4xl leading-tight tracking-tight text-ink sm:text-5xl dark:text-white">
           {data.h1}
         </h1>
-        <p className="mt-4 text-lg leading-relaxed text-slate-500 dark:text-slate-400">
+        <p className="mt-4 text-lg leading-relaxed text-ink-soft dark:text-slate-400">
           {data.intro}
         </p>
       </header>
@@ -64,18 +61,14 @@ export default function ExamSectionPage({
       </div>
 
       {data.tools && data.tools.length > 0 && (
-        <section className="mt-12 rounded-3xl border border-slate-200 bg-slate-50/60 p-6 dark:border-slate-800 dark:bg-slate-900/40">
-          <h2 className="flex items-center gap-2 text-xl font-extrabold text-slate-900 dark:text-white">
-            <Wand2 className="h-5 w-5 text-brand-500" />
-            Try it free
+        <section className="mt-12 rounded-lg border border-slate-200 bg-slate-50/60 p-6 dark:border-slate-800 dark:bg-slate-900/40">
+          <h2 className="font-serif text-2xl tracking-tight text-ink dark:text-white">
+            À essayer gratuitement
           </h2>
           <div className="mt-4 flex flex-wrap gap-3">
             {data.tools.map((tool) => (
               <Link key={tool.href} href={tool.href}>
-                <Button variant="secondary">
-                  <Layers className="h-4 w-4 text-brand-500" />
-                  {tool.label}
-                </Button>
+                <Button variant="secondary">{tool.label}</Button>
               </Link>
             ))}
           </div>

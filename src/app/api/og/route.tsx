@@ -3,20 +3,30 @@ import { SITE_NAME, SITE_URL, SITE_TAGLINE } from '@/lib/config';
 
 export const runtime = 'edge';
 
+const INK = '#1d2936';
+const MUTED = '#5b6472';
+const FAINT = '#8a919c';
+const ACCENT = '#2f5d8a';
+const HAIRLINE = '#d9d5cb';
+const PAPER = '#f7f5f0';
+
 /**
  * Route handler GET — Images Open Graph dynamiques (1200×630).
- * variant=share : carte de partage avec bande From → To.
+ * Identité académique Prep-Anglais : papier, encre marine, serif.
+ * variant=share : bande de progression « Actuel → Objectif ».
  */
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const title = (url.searchParams.get('title') ?? SITE_TAGLINE).slice(0, 70);
-  const overline = url.searchParams.get('overline') ?? 'Free English test preparation';
-  const exam = url.searchParams.get('exam') ?? '';
+  const title = (url.searchParams.get('title') ?? SITE_TAGLINE).slice(0, 80);
+  const overline = url.searchParams.get('overline') ?? 'Préparation aux examens d\u2019anglais';
+  const exam =
+    url.searchParams.get('exam') ??
+    'TOEFL · TOEIC · IELTS · Cambridge English · Duolingo English Test';
   const variant = url.searchParams.get('variant') ?? 'default';
   const bandFrom = url.searchParams.get('bandFrom') ?? '';
   const bandTo = url.searchParams.get('bandTo') ?? '';
 
-  const fontSize = title.length > 40 ? 56 : title.length > 26 ? 64 : 72;
+  const titleSize = title.length > 42 ? 54 : title.length > 26 ? 62 : 72;
 
   return new ImageResponse(
     (
@@ -25,70 +35,89 @@ export async function GET(req: Request) {
           width: 1200,
           height: 630,
           display: 'flex',
-          color: 'white',
-          background: 'linear-gradient(120deg, #1d4ed8 0%, #7c3aed 100%)',
-          fontFamily: 'sans-serif',
+          color: INK,
+          background: PAPER,
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          padding: 80,
         }}
       >
         <div
           style={{
+            position: 'absolute',
+            top: 40,
+            left: 80,
+            right: 80,
+            height: 2,
+            background: HAIRLINE,
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 40,
+            left: 80,
+            right: 80,
+            height: 2,
+            background: HAIRLINE,
+          }}
+        />
+
+        <div
+          style={{
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            padding: 80,
+            justifyContent: 'space-between',
             width: '100%',
             height: '100%',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#c7d2fe' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+            <span style={{ fontSize: 30, fontWeight: 500 }}>Prep</span>
+            <span style={{ fontSize: 30, fontWeight: 700 }}>‑Anglais</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: 8,
-                background: '#f59e0b',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#1e293b',
-                fontWeight: 900,
-                fontSize: 18,
+                fontSize: 22,
+                fontWeight: 700,
+                color: MUTED,
+                letterSpacing: 4,
+                textTransform: 'uppercase',
               }}
             >
-              S
+              {overline}
             </div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: 'white' }}>{SITE_NAME}</div>
+            <div style={{ marginTop: 24, fontSize: titleSize, fontWeight: 700, lineHeight: 1.08 }}>
+              {title}
+            </div>
+            <div style={{ marginTop: 28, width: 96, height: 2, background: ACCENT }} />
+            <div style={{ marginTop: 26, fontSize: 22, color: MUTED }}>{exam}</div>
+
+            {variant === 'share' && (bandFrom || bandTo) && (
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 40, marginTop: 36 }}>
+                {bandFrom && (
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: 18, color: MUTED }}>Actuel</span>
+                    <span style={{ fontSize: 72, fontWeight: 700, lineHeight: 1 }}>{bandFrom}</span>
+                  </div>
+                )}
+                {bandTo && (
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: 18, color: MUTED }}>Objectif</span>
+                    <span style={{ fontSize: 72, fontWeight: 700, lineHeight: 1, color: ACCENT }}>
+                      {bandTo}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <div style={{ marginTop: 28, fontSize: 22, fontWeight: 700, color: '#c7d2fe' }}>{overline}</div>
-          <div style={{ marginTop: 12, fontSize, fontWeight: 900, lineHeight: 1.1 }}>{title}</div>
-          <div style={{ marginTop: 32, fontSize: 20, color: '#e0e7ff' }}>{exam || SITE_TAGLINE}</div>
-          {variant === 'share' && (bandFrom || bandTo) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 40 }}>
-              {bandFrom && (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: 18, color: '#c7d2fe' }}>From</span>
-                  <span style={{ fontSize: 84, fontWeight: 900 }}>{bandFrom}</span>
-                </div>
-              )}
-              {bandTo && (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: 18, color: '#c7d2fe' }}>To</span>
-                  <span style={{ fontSize: 84, fontWeight: 900, color: '#fbbf24' }}>{bandTo}</span>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        <div
-          style={{
-            position: 'absolute',
-            right: 40,
-            bottom: 40,
-            fontSize: 18,
-            color: '#e0e7ff',
-          }}
-        >
-          {SITE_URL}
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, color: FAINT }}>
+            <span>{SITE_NAME}</span>
+            <span>{SITE_URL}</span>
+          </div>
         </div>
       </div>
     ),

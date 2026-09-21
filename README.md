@@ -1,166 +1,155 @@
-# ScoreUp
+# Prep-Anglais
 
-Prepare for the English score you need. Personalized preparation for **TOEFL, TOEIC, IELTS and more** — free diagnostic, daily practice, vocabulary, mock tests, an AI Coach and progress tracking.
+Plateforme académique de préparation aux examens d'anglais : **TOEFL, TOEIC, IELTS, Cambridge English et Duolingo English Test**. Diagnostic gratuit, exercices guidés, vocabulaire, examens blancs chronométrés et suivi de progression — avec des scores estimés, jamais officiels.
 
-This is a production-quality **MVP**: Stripe-ready, Supabase-ready, deployable to Vercel in one click. It runs fully in `demo mode` without any external credentials.
-
-> **Important disclaimer** — This project is not affiliated with or endorsed by ETS, IDP, Cambridge, or Duolingo. All questions are **original demo content** and all scores are **estimated practice scores**, never official exam scores.
+> **Avertissement** — Prep-Anglais n'est affilié à aucun organisme d'examen (ETS, IDP, Cambridge, Duolingo). Toutes les questions sont un contenu pédagogique original et tous les scores sont des estimations à titre indicatif.
 
 ---
 
-## Tech stack
+## Stack technique
 
 - Next.js 14 (App Router, RSC) + TypeScript strict
-- Tailwind CSS v3 with shadcn-style UI (custom, no Radix dependency)
-- lucide-react icons, class-variance-authority
-- Supabase (auth + database, optional — schema included)
-- Stripe (subscriptions, optional — guarded endpoints)
-- Deployed on Vercel (drag & drop)
+- Tailwind CSS v3 + composants shadcn-style (sans dépendance Radix)
+- Icones lucide-react, class-variance-authority
+- Supabase (authentification réelle + base de données, schéma inclus)
+- Stripe (abonnements réels, endpoints protégés)
+- Déploiement sur Vercel
 
-## Getting started
+## Démarrage
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000.
+Ouvrir http://localhost:3000.
 
-Useful scripts:
+Scripts utiles :
 
 ```bash
 npm run lint      # ESLint (next/core-web-vitals)
 npm run typecheck # tsc --noEmit
-npm run build     # Next.js production build
+npm run build     # build production Next.js
 ```
 
-## Demo mode (default)
+## Authentification & abonnements
 
-Without any environment variables, ScoreUp works out of the box:
+- **Auth réelle** : une fois `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY` renseignées, les formulaires utilisent Supabase Auth (signup, login, reset de mot de passe, session via cookies). En développement sans clés, un cookie de session local (`prep_user`) permet de tester le parcours — il n'est jamais présenté comme une fonctionnalité « démo ».
+- **Freemium** : 5 questions gratuites par jour (`FREE_DAILY_LIMIT`), comptées en `localStorage` ; au-delà, un écran d'information propose l'abonnement.
+- **Premium** : vérifié **côté serveur** à chaque requête depuis `profiles.plan`, synchronisée par le webhook Stripe. Les valeurs client ne sont jamais fiables.
+- **Stripe** : `/api/checkout` crée la session, `/api/portal` ouvre l'espace de facturation, `/api/webhook` synchronise `subscriptions` et met à jour `profiles.plan`. Événements traités : `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`.
+- **Pages protégées** : `/dashboard`, `/progress`, `/account`, `/coach` (redirection vers `/login` sans session).
 
-- **Mock auth** — sign up/log in any email on `/signup`; the session is stored in a browser cookie (`scoreup_user`).
-- **Freemium** — the free plan allows 5 questions/day (`FREE_DAILY_LIMIT`), stored in `localStorage`. After that, a non-aggressive paywall is shown.
-- **Demo premium** — on `/pricing`, if Stripe is not configured the button shows a clear message and offers an "Enable demo premium" toggle (cookie). It is **never** a fake billing success.
-- **AI Coach** — keyword-based demo answers until an `OPENAI_API_KEY` is added.
-- All mock tests, charts and dashboard data are demo data.
+## Variables d'environnement
 
-## Environment variables
+Copier `.env.example` vers `.env.local` :
 
-Copy `.env.example` to `.env.local`:
-
-| Variable | Required | Purpose |
+| Variable | Requise | Rôle |
 | --- | --- | --- |
-| `NEXT_PUBLIC_APP_NAME` | no | Site name (default `ScoreUp`) |
-| `NEXT_PUBLIC_SITE_URL` | no | Canonical URL (default `http://localhost:3000`) |
-| `NEXT_PUBLIC_SUPABASE_URL` | no | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | no | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | no | Admin client (API routes only) |
-| `STRIPE_SECRET_KEY` | no | Stripe secret key (sk_test...) |
-| `NEXT_PUBLIC_STRIPE_PREMIUM_MONTHLY_PRICE_ID` | no | Price ID for monthly plan |
-| `NEXT_PUBLIC_STRIPE_PREMIUM_YEARLY_PRICE_ID` | no | Price ID for yearly plan |
-| `STRIPE_WEBHOOK_SECRET` | no | Webhook signing secret (whsec_...) |
-| `OPENAI_API_KEY` | no | Enables the real AI Coach |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | no | Google Analytics 4 (anonymous events, no-op if empty) |
-| `NEXT_PUBLIC_GSC_VERIFICATION` | no | Google Search Console verification tag |
+| `NEXT_PUBLIC_SITE_URL` | non | URL canonique (défaut `http://localhost:3000`) |
+| `NEXT_PUBLIC_CURRENCY` | non | Devise affichée : `EUR` (défaut), `USD`, `GBP` |
+| `NEXT_PUBLIC_SUPABASE_URL` | non | URL du projet Supabase (activation de l'auth réelle) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | non | Clé anon Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | non | Client admin — API serveur uniquement (webhook) |
+| `STRIPE_SECRET_KEY` | non | Clé secrète Stripe (`sk_test...`) |
+| `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_YEARLY` | non | IDs de Price côté serveur (prioritaires si définis) |
+| `NEXT_PUBLIC_STRIPE_PREMIUM_MONTHLY_PRICE_ID` / `_YEARLY_` | non | IDs de Price publics (fallback) |
+| `STRIPE_WEBHOOK_SECRET` | non | Secret de signature du webhook (`whsec_...`) |
+| `OPENAI_API_KEY` | non | Active l'Assistant de préparation réel |
+| `NEXT_PUBLIC_GA_ID` / `NEXT_PUBLIC_GA_MEASUREMENT_ID` | non | Google Analytics 4 (événements anonymes, sans PII) |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` / `NEXT_PUBLIC_GSC_VERIFICATION` | non | Vérification Google Search Console |
 
-> Supabase: as soon as `NEXT_PUBLIC_SUPABASE_URL` is set, the mock session is automatically replaced by real Supabase Auth. Stripe routes return `503` with a clear message until configured.
+## Architecture SEO
 
-## SEO architecture
+Prep-Anglais est construit « SEO-first » ; le contenu est centralisé pour alimenter automatiquement le sitemap et l'audit interne.
 
-ScoreUp is built "SEO-first" for organic acquisition. Everything below is centralized, so new content is automatically added to the sitemap and the internal audit.
+- **Guides d'examen programmatiques** — `/toefl/*`, `/toeic/*`, `/ielts/*` rendus depuis `src/content/exams.ts` : un hub par examen + une page par section et par thème, avec copy unique, exemples réels, FAQ et liens internes.
+- **Outils gratuits indexables** — `/tools/*` et `/practice/*` : calculateurs de score, test de niveau, test de vocabulaire, générateur de plan d'étude et entraînement intégré (3 questions). Accessibles sans compte.
+- **Blog** — `/blog` + `/blog/[slug]` avec Article JSON-LD, sommaire « Dans cet article », dates réelles (jamais falsifiées), articles liés.
+- **Métadonnées** — `src/lib/seo.ts` fournit la fabrique `seoMetadata()` : titres absolus uniques, descriptions, canonical, Open Graph (images dynamiques via `/api/og`), Twitter Cards, robots index/noindex. Les pages protégées (dashboard, coach, progress, account, auth, `/internal`) sont `noindex`.
+- **Données structurées** — Organization/WebSite, BreadcrumbList, FAQPage, Article, Course — uniquement là où elles décrivent fidèlement la page.
+- **Sitemap & robots** — `src/app/sitemap.ts` généré depuis `src/lib/seo-registry.ts` (source unique de vérité) ; `robots.ts` exclut les sections privées.
+- **Audit interne** — `/internal/seo` (noindex) liste les routes enregistrées avec leur statut canonical.
+- **Analytics** — Google Analytics 4 : événements anonymes (`diagnostic_started`, `diagnostic_completed`, `signup_completed`, `login_completed`, `practice_started`, `practice_completed`, `vocabulary_started`, `mock_test_started`, `pricing_viewed`, `checkout_started`, `subscription_started`, `tool_used`, `share_created`), jamais de données personnelles.
 
-- **Programmatic exam guides** — `/toefl/*`, `/toeic/*`, `/ielts/*` render from structured content (`src/content/exams.ts`): one hub per exam + a page per section and per topic (main idea, vocabulary themes, etc.), each with unique copy, real examples, FAQ and internal links.
-- **Free indexable tools** — `/tools/*` and `/practice/*`: score calculators, English level test, vocabulary test, study plan generator, and embedded 3-question practice landings. No sign-up, no daily limit on public tools.
-- **Blog** — `/blog` + `/blog/[slug]` with Article JSON-LD, "in this article" TOC, real published/updated dates (never faked), related posts.
-- **Metadata** — `src/lib/seo.ts` provides a single `seoMetadata()` factory: unique absolute titles, descriptions, canonical, Open Graph (dynamic images via `/api/og`), Twitter cards, robots index/noindex. Private/demo pages (dashboard, coach, progress, auth, `/internal`) are `noindex`.
-- **Structured data** — Organization/WebSite, BreadcrumbList, FAQPage, Article, Course JSON-LD — used only where they describe the page truthfully.
-- **Sitemap & robots** — `src/app/sitemap.ts` is generated from `src/lib/seo-registry.ts` (single source of truth); `robots.ts` disallows private sections.
-- **Internal audit** — `/internal/seo` (noindex) lists every registered route with canonical status; add new public pages to `buildRegistry()` first.
-- **i18n & analytics** — locale architecture ready (`src/i18n/config.ts`, not yet activated); Google Analytics + Search Console plug in via env vars above (anonymous events only, never PII).
+## Configuration Supabase
 
-## Supabase setup
+1. Créer un projet, puis exécuter `supabase/schema.sql` dans l'éditeur SQL.
+2. Le schéma crée : `profiles`, `tests`, `questions`, `answers`, `attempts`, `scores`, `study_sessions`, `vocabulary`, `flashcards`, `subscriptions`, `user_progress`, `streaks`, avec RLS et triggers (`handle_new_user`, `sync_premium`).
+3. Renseigner les variables d'environnement. Le fallback local couvre le développement sans SQL.
 
-1. Create a project, then run `supabase/schema.sql` in the SQL editor.
-2. It creates the full schema: `profiles`, `tests`, `questions`, `answers`, `attempts`, `scores`, `study_sessions`, `vocabulary`, `flashcards`, `subscriptions`, `user_progress`, `streaks`, with RLS and triggers (`handle_new_user`, `sync_premium`).
-3. Fill the env vars. No SQL is required to run the demo.
+## Configuration Stripe
 
-## Stripe setup
+1. Créer deux produits d'abonnement dans le dashboard Stripe :
+   - **Premium Mensuel** — 9,99 €/mois
+   - **Premium Annuel** — 59,99 €/an (meilleure valeur)
+2. Copier les IDs de Price dans `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_YEARLY` (ou les variables `NEXT_PUBLIC_STRIPE_*_PRICE_ID`).
+3. Ajouter l'endpoint webhook `https://votre-domaine.com/api/webhook` (événements : `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`) et copier le secret de signature.
+4. Routes : `/api/checkout` (session), `/api/webhook` (synchronisation), `/api/portal` (espace de facturation).
 
-1. Create two subscription products in the Stripe dashboard:
-   - **Premium Monthly** — €9.99/month
-   - **Premium Yearly** — €59.99/year (Best value)
-2. Copy the Price IDs into the two `NEXT_PUBLIC_STRIPE_*_PRICE_ID` vars.
-3. Add the webhook endpoint `https://your-domain.com/api/webhook` (events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`) and copy the signing secret.
-4. Routes: `/api/checkout` (session), `/api/webhook` (sync premium status), `/api/portal` (billing portal).
+## Déploiement sur Vercel
 
-## Deploy to Vercel
+1. Pousser le dossier vers un dépôt GitHub.
+2. Sur Vercel : **New Project → Import** le dépôt. Le script `build` est `next build`.
+3. Ajouter les variables d'environnement depuis `.env.example`.
+4. Déployer. Ajouter le domaine personnalisé sous Settings → Domains.
 
-1. Push this folder to a GitHub repository.
-2. On Vercel: **New Project → Import** the repo. The `build` script is `next build`.
-3. Add the environment variables from `.env.example`.
-4. Deploy. You can add a custom domain under Settings → Domains.
-
-## Project structure
+## Structure du projet
 
 ```
 src/
   app/
-    api/               checkout, webhook, portal (Stripe), og (OG images)
-    toefl|toeic|ielts/ hubs + programmatic section/topic pages ([[...slug]])
-    blog/              blog index + [slug] articles (Article JSON-LD)
-    tools/             free tools index + [slug] (calculators, tests, plans)
-    practice/          index + [slug] embedded practice landings
-    internal/seo/      noindex SEO route registry audit
-    [exam landers]/    cambridge, duolingo-english-test (SEO)
-    diagnostic/        free diagnostic test (client app)
-    practice/          freemium practice (client app)
-    vocabulary/        flashcards & quizzes (client app)
-    mock-tests/        list + [slug] timed mock test (client app)
-    coach/             AI Coach chat (client app)
-    progress/          charts demo (server + SVG components)
-    pricing/           plans + comparison table
-    dashboard/         protected overview
-    login|signup|forgot-password/  mock auth (Supabase-ready)
+    api/               checkout, portal, webhook (Stripe), og (images OG)
+    toefl|toeic|ielts/ hubs + pages programmatiques section/thème
+    blog/              index + articles [slug] (Article JSON-LD)
+    tools/             index d'outils gratuits + [slug]
+    practice/          index + [slug] (entraînements intégrés)
+    internal/seo/      audit noindex du registre des routes
+    cambridge, duolingo-english-test/  landers SEO
+    diagnostic/        test de niveau gratuit (app client)
+    practice/          exercices freemium (app client)
+    vocabulary/        cartes mémoire & quiz (app client)
+    mock-tests/        liste + [slug] examens blancs chronométrés
+    coach/             Assistant de préparation (app client)
+    progress/          suivi de progression (serveur + SVG)
+    account/           compte : abonnement + objectifs (protégé)
+    pricing/           plans + tableau comparatif
+    dashboard/         espace de préparation (protégé)
+    login|signup|forgot-password/  auth (Supabase réel)
   components/
-    ui/                button, card, badge, input, progress (shadcn-style)
+    ui/                button, card, badge, input, progress
     seo/               Breadcrumbs, BlogArticle, ExamSectionPage, ExamHub, BlocksRenderer, FaqSection, InternalLinks, CtaBanner, JsonLd
     tools/             ScoreCalculator, EnglishLevelTest, VocabularyTest, StudyPlanGenerator, EmbeddedPractice, ShareControls
-    *App.tsx           interactive client apps
-    Hero, Navbar, Footer, Paywall, PricingCard, QuestionCard, ...
-  content/
-    types.ts           content model (blocks, pages, blog, tools, practice)
-    exams.ts           TOEFL/TOEIC/IELTS sections + topics copy
-    blog.ts            blog posts (author, dates, related)
-    tools.ts, practice.ts  free-tool and practice landing content
+    *App.tsx           applications clientes interactives
+    Navbar, Footer, Paywall, PricingCard, QuestionCard, SectionHeading, AccountForm, TestCard…
+  content/             exams.ts, blog.ts, tools.ts, practice.ts, types.ts (contenu en français)
   lib/
-    config.ts          plans, daily limit, site constants
-    seo.ts             seoMetadata factory + JSON-LD builders + OG URL
-    seo-registry.ts    single source of truth for sitemap/audit
-    analytics.ts       GA event stubs (no PII, no-op without config)
-    i18n/config.ts     locale architecture (not yet activated)
-    auth.ts            server session (Supabase + demo)
-    auth-client.ts     client demo session helpers
-    stripe.ts          lazy Stripe client
-    questions.ts       30+ original demo questions
-    vocabulary.ts      vocab bank (23 words)
-    mockTests.ts       4 mock tests
-    exams.ts           5 exam definitions
-    demo.ts            dashboard/progress demo data
+    config.ts          plans, limite quotidienne, constantes du site
+    seo.ts             fabrique seoMetadata + builders JSON-LD + URL OG
+    seo-registry.ts    source de vérité du sitemap/de l'audit
+    analytics.ts       événements GA4 (anonymes)
+    auth.ts            session serveur (Supabase réel)
+    auth-client.ts     actions client (signIn/signUp/signOut/reset)
+    supabase.ts        clients serveur typés (server + admin)
+    supabase-client.ts client navigateur (client-safe)
+    stripe.ts          client Stripe paresseux
+    questions.ts       banque de questions originales
+    vocabulary.ts      banque de vocabulaire
+    mockTests.ts       4 examens blancs
+    exams.ts           5 définitions d'examen
 supabase/
-  schema.sql           full SQL schema with RLS + triggers
+  schema.sql           schéma SQL complet avec RLS + triggers
 ```
 
-## Roadmap (V2)
+## Feuille de route
 
-- Real OpenAI/Anthropic integration for the AI Coach
-- Personalized study plan generated from diagnostic results
-- Vocabulary spaced-repetition engine + review queue persisted to Supabase
-- More exams fully available (IELTS, Cambridge, Duolingo English Test)
-- Error-history tracking (drill on your recurring mistakes)
-- Leaderboards & streaks
-- Email notifications / digest
-- Real Supabase Auth flows (delegated in `auth-client.ts`)
+- Assistant de préparation réel (OpenAI/Anthropic)
+- Plan de préparation personnalisé généré depuis les résultats du diagnostic
+- Moteur de répétition espacée du vocabulaire persisté sur Supabase
+- Examens supplémentaires disponibles (IELTS, Cambridge, Duolingo English Test)
+- Suivi des erreurs récurrentes
+- Séquences (streaks) et notifications par e-mail
 
-## License
+## Licence
 
-Demo product — do not redistribute the demo question content.
+Produit de démonstration — ne pas redistribuer le contenu des questions.

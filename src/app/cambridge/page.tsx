@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import ExamLanding from '@/components/ExamLanding';
-import { SITE_URL } from '@/lib/config';
+import { seoMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Cambridge English Preparation',
+export const metadata: Metadata = seoMetadata({
+  title: 'Cambridge English — Niveaux A2 Key à C2 Proficiency | Prep-Anglais',
   description:
-    'Cambridge exams (KET, PET, FCE, CAE) preparation is coming soon. Start with ScoreUp’s free diagnostic and estimated scores now.',
-  alternates: { canonical: `${SITE_URL}/cambridge` },
-};
+    'Les certifications Cambridge English (Key, Preliminary, First, Advanced, Proficiency) : préparez votre niveau avec le diagnostic gratuit Prep-Anglais et des scores estimés.',
+  path: '/cambridge',
+  overline: 'Cambridge English',
+});
 
 export default function CambridgePage() {
   return <ExamLanding examKey="cambridge" />;

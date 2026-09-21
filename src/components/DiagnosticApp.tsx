@@ -2,24 +2,28 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Target } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import QuestionCard from '@/components/QuestionCard';
 import Button from '@/components/ui/button';
 import ProgressBar from '@/components/ProgressBar';
 import { Badge } from '@/components/ui/badge';
 import { getMcQuestions, type Exam, type Question } from '@/lib/questions';
 import { XP_PER_CORRECT } from '@/lib/config';
+import { useUsageLimit } from '@/lib/usage';
+import { trackEvent } from '@/lib/analytics';
 
 type Step = 'config' | 'test' | 'result';
 
-const levels = ['Beginner', 'Intermediate', 'Upper Intermediate', 'Advanced'];
+const levels = ['Débutant', 'Intermédiaire', 'Intermédiaire avancé', 'Avancé'];
 
-export default function DiagnosticApp() {
+export default function DiagnosticApp({ premium }: { premium: boolean }) {
   const [step, setStep] = useState<Step>('config');
   const [exam, setExam] = useState<Exam>('toefl');
   const [target, setTarget] = useState('5.5');
   const [date, setDate] = useState('');
   const [level, setLevel] = useState(levels[1]);
+
+  const { premium: isPremium } = useUsageLimit(premium);
 
   const questions = useMemo<Question[]>(() => {
     const pool = getMcQuestions(exam).slice(0, 10);
@@ -36,6 +40,7 @@ export default function DiagnosticApp() {
     setCorrect(0);
     setXp(0);
     setStep('test');
+    trackEvent('diagnostic_started');
   }
 
   function handleAnswered(ok: boolean) {
@@ -48,42 +53,41 @@ export default function DiagnosticApp() {
   function next() {
     if (index >= questions.length - 1) {
       setStep('result');
+      trackEvent('diagnostic_completed');
     } else {
       setIndex((i) => i + 1);
     }
   }
 
   const percent = questions.length ? Math.round((correct / questions.length) * 100) : 0;
-  // Estimation de DÉMO : bande 3.0 → 6.0 selon le taux de bonnes réponses.
+  // Estimation indicative : bande 3.0 → 6.0 selon le taux de bonnes réponses.
   const estimatedBand = (3 + (percent / 100) * 3).toFixed(1);
 
   if (step === 'config') {
     return (
       <form
         onSubmit={startDiagnostic}
-        className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-8 shadow-soft dark:border-slate-800 dark:bg-slate-900"
+        className="card-academic mx-auto max-w-xl p-8 shadow-soft"
       >
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-600 text-white">
-          <Target className="h-6 w-6" />
-        </span>
-        <h2 className="mt-5 text-2xl font-extrabold text-slate-900 dark:text-white">
-          Set up your diagnostic
+        <p className="micro-label-accent">Diagnostic gratuit — ~10 questions</p>
+        <h2 className="mt-3 font-serif text-2xl leading-tight tracking-tight text-ink dark:text-white">
+          Configurer mon diagnostic
         </h2>
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          10 minutes, ~10 questions. You&apos;ll receive an <strong>estimated score</strong>{' '}
-          (not an official exam score).
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft dark:text-slate-400">
+          Environ 10 minutes pour situer votre niveau. Le résultat est un score
+          estimé, à titre indicatif — jamais une note d&apos;examen officielle.
         </p>
 
         <div className="mt-7 space-y-5">
           <div>
-            <label htmlFor="exam" className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-              Exam
+            <label htmlFor="exam" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-100">
+              Examen
             </label>
             <select
               id="exam"
               value={exam}
               onChange={(e) => setExam(e.target.value as Exam)}
-              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             >
               <option value="toefl">TOEFL</option>
               <option value="toeic">TOEIC</option>
@@ -92,8 +96,8 @@ export default function DiagnosticApp() {
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <label htmlFor="target" className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Target score
+              <label htmlFor="target" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-100">
+                Score visé
               </label>
               <input
                 id="target"
@@ -103,25 +107,25 @@ export default function DiagnosticApp() {
                 step="0.5"
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
-                className="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
             </div>
             <div>
-              <label htmlFor="date" className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Exam date
+              <label htmlFor="date" className="mb-1.5 block text-sm font-semibold text-ink dark:text-slate-100">
+                Date de l&apos;examen
               </label>
               <input
                 id="date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="h-11 w-full rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
             </div>
           </div>
 
           <div>
-            <p className="mb-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">Current level</p>
+            <p className="mb-1.5 text-sm font-semibold text-ink dark:text-slate-100">Niveau actuel</p>
             <div className="flex flex-wrap gap-2">
               {levels.map((l) => (
                 <button
@@ -130,8 +134,8 @@ export default function DiagnosticApp() {
                   onClick={() => setLevel(l)}
                   className={
                     level === l
-                      ? 'rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white'
-                      : 'rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-brand-300 dark:border-slate-700 dark:text-slate-300'
+                      ? 'rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white'
+                      : 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-ink-soft hover:border-brand-300 dark:border-slate-700 dark:text-slate-300'
                   }
                 >
                   {l}
@@ -141,12 +145,14 @@ export default function DiagnosticApp() {
           </div>
         </div>
 
-        <Button type="submit" size="lg" variant="accent" className="mt-8 w-full">
-          Launch diagnostic test →
+        <Button type="submit" size="lg" className="mt-8 w-full">
+          Lancer le diagnostic
         </Button>
-        <p className="mt-3 text-center text-xs text-slate-400">
-          Demo questions — original content, no official exam material.
-        </p>
+        {!isPremium && (
+          <p className="mt-3 text-center text-xs text-ink-faint dark:text-slate-500">
+            Gratuit — le diagnostic ne consomme pas votre quota quotidien d&apos;exercices.
+          </p>
+        )}
       </form>
     );
   }
@@ -155,9 +161,9 @@ export default function DiagnosticApp() {
     const current = questions[index];
     return (
       <div className="mx-auto max-w-2xl">
-        <div className="mb-4 flex items-center justify-between text-sm font-semibold text-slate-500 dark:text-slate-400">
+        <div className="mb-4 flex items-center justify-between text-sm font-semibold text-ink-soft dark:text-slate-400">
           <span>
-            Question {index + 1} of {questions.length}
+            Question {index + 1} sur {questions.length}
           </span>
           <span>+{xp} XP</span>
         </div>
@@ -167,7 +173,7 @@ export default function DiagnosticApp() {
 
         <div className="mt-6 flex justify-end">
           <Button onClick={next} variant="primary" size="lg">
-            {index >= questions.length - 1 ? 'See my result' : 'Next question'}
+            {index >= questions.length - 1 ? 'Voir mon résultat' : 'Question suivante'}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
@@ -176,40 +182,42 @@ export default function DiagnosticApp() {
   }
 
   return (
-    <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-soft dark:border-slate-800 dark:bg-slate-900">
-      <Badge variant="accent" className="mx-auto">Estimated score — demo</Badge>
-      <p className="mt-6 text-sm font-semibold uppercase tracking-wide text-slate-400">Your level</p>
-      <p className="mt-1 text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+    <div className="card-academic mx-auto max-w-xl p-8 text-center shadow-soft">
+      <Badge variant="accent" className="mx-auto">Score estimé</Badge>
+      <p className="micro-label mt-6">Votre niveau</p>
+      <p className="mt-2 font-serif text-6xl leading-none tracking-tight text-ink dark:text-white">
         {estimatedBand}
       </p>
-      <p className="mt-1 text-sm text-slate-400">target {target} · {level}</p>
+      <p className="mt-2 text-sm text-ink-faint dark:text-slate-500">
+        objectif {target} · {level}
+      </p>
 
-      <div className="mx-auto mt-6 flex max-w-xs items-center justify-center gap-6 rounded-2xl bg-slate-50 py-4 dark:bg-slate-800">
+      <div className="mx-auto mt-6 flex max-w-xs items-center justify-center gap-6 rounded-lg bg-slate-50 py-4 dark:bg-slate-800">
         <div>
-          <p className="text-xs text-slate-400">Correct</p>
-          <p className="text-xl font-extrabold text-emerald-600">{correct}/{questions.length}</p>
+          <p className="text-xs text-ink-faint dark:text-slate-400">Bonnes réponses</p>
+          <p className="text-xl font-semibold text-emerald-600">{correct}/{questions.length}</p>
         </div>
         <div className="h-8 w-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
         <div>
-          <p className="text-xs text-slate-400">Accuracy</p>
-          <p className="text-xl font-extrabold text-slate-900 dark:text-white">{percent}%</p>
+          <p className="text-xs text-ink-faint dark:text-slate-400">Précision</p>
+          <p className="text-xl font-semibold text-ink dark:text-white">{percent}%</p>
         </div>
       </div>
 
-      <p className="mx-auto mt-6 max-w-md text-sm text-slate-500 dark:text-slate-400">
-        This is a practice estimate to guide your study plan. It is not an official TOEFL/TOEIC
-        score.
+      <p className="mx-auto mt-6 max-w-md text-sm leading-relaxed text-ink-soft dark:text-slate-400">
+        Un score estimé pour orienter votre préparation. Ce n&apos;est pas une note
+        officielle TOEFL ou TOEIC.
       </p>
 
       <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
         <Link href="/signup" className="w-full sm:w-auto">
-          <Button variant="accent" size="lg" className="w-full sm:w-auto">
-            Save progress — create account
+          <Button variant="primary" size="lg" className="w-full sm:w-auto">
+            Créer un compte gratuit
           </Button>
         </Link>
         <Link href="/practice" className="w-full sm:w-auto">
           <Button variant="secondary" size="lg" className="w-full sm:w-auto">
-            <ArrowLeft className="h-4 w-4" /> Keep practicing
+            <ArrowLeft className="h-4 w-4" /> Continuer mes exercices
           </Button>
         </Link>
       </div>

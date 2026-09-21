@@ -3,7 +3,7 @@
  * Le module reste inoffensif au build même si STRIPE_SECRET_KEY est absente.
  */
 import Stripe from 'stripe';
-import { PLANS } from '@/lib/config';
+import { PLANS_BY_SLUG, type PlanSlug } from '@/lib/config';
 
 let cached: Stripe | null = null;
 
@@ -23,7 +23,6 @@ export function getStripe(): Stripe {
 /**
  * Retourne l'ID de Price Stripe d'un plan, ou null s'il n'est pas configuré.
  */
-export function getPriceIdForPlan(slug: keyof typeof PLANS) {
-  const config = PLANS[slug];
-  return config.priceId || null;
+export function getPriceIdForPlan(slug: PlanSlug) {
+  return PLANS_BY_SLUG[slug].priceId || null;
 }

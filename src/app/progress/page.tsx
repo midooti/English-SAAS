@@ -1,97 +1,131 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Flame, TrendingUp, Sparkles } from 'lucide-react';
-import ScoreCard from '@/components/ScoreCard';
-import SkillCard from '@/components/SkillCard';
-import DashboardCard from '@/components/DashboardCard';
-import LineChart from '@/components/LineChart';
-import BarChart from '@/components/BarChart';
-import Button from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  demoTarget,
-  demoSkills,
-  demoScoreHistory,
-  demoStats,
-  demoWeakTopics,
-  demoStrongTopics,
-} from '@/lib/demo';
+import { requireUser } from '@/lib/auth';
+import { createSupabaseServer } from '@/lib/supabase';
+import { HAS_SUPABASE } from '@/lib/config';
+import { seoMetadata } from '@/lib/seo';
+import Progress from '@/components/ui/progress';
 
-export const metadata: Metadata = {
-  title: 'Progress',
-  description: 'Track your estimated score progression, skills and accuracy over time.',
+export const metadata: Metadata = seoMetadata({
+  title: 'Progression | Prep-Anglais',
+  description: 'Suivez vos scores estimés, vos compétences et votre régularité dans Prep-Anglais.',
+  path: '/progress',
+  noindex: true,
+  overline: 'Progression',
+});
+
+const skills = [
+  { skill: 'Compréhension écrite', label: 'À évaluer', pct: 0 },
+  { skill: 'Compréhension orale', label: 'À évaluer', pct: 0 },
+  { skill: 'Expression écrite', label: 'À évaluer', pct: 0 },
+  { skill: 'Expression orale', label: 'À évaluer', pct: 0 },
+  { skill: 'Vocabulaire', label: 'À évaluer', pct: 0 },
+  { skill: 'Gestion du temps', label: 'À évaluer', pct: 0 },
+];
+
+type Stats = {
+  overallBand: number | null;
+  accuracy: number | null;
+  questionsCompleted: number;
+  streak: number;
 };
 
-export default function ProgressPage() {
+async function loadStats(userId: string): Promise<Stats> {
+  const empty: Stats = { overallBand: null, accuracy: null, questionsCompleted: 0, streak: 0 };
+  if (!HAS_SUPABASE) return empty;
+  try {
+    const supabase = createSupabaseServer();
+    const [progress, streak] = await Promise.all([
+      supabase
+        .from('user_progress')
+        .select('overall_band, accuracy, questions_completed')
+        .eq('user_id', userId)
+        .maybeSingle(),
+      supabase
+        .from('streaks')
+        .select('current_streak')
+        .eq('user_id', userId)
+        .maybeSingle(),
+    ]);
+    return {
+      overallBand: progress.data?.overall_band ?? null,
+      accuracy: progress.data?.accuracy ?? null,
+      questionsCompleted: progress.data?.questions_completed ?? 0,
+      streak: streak.data?.current_streak ?? 0,
+    };
+  } catch {
+    return empty;
+  }
+}
+
+export default async function ProgressPage() {
+  const user = await requireUser();
+  const stats = await loadStats(user.id);
+  const hasData = stats.questionsCompleted > 0;
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6 dark:border-slate-800">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Your progress
+          <p className="micro-label">Progression</p>
+          <h1 className="mt-2 font-serif text-4xl tracking-tight text-ink dark:text-white">
+            Votre progression
           </h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Demo data — connect your account to see real results.
-          </p>
         </div>
-        <Link href="/practice">
-          <Button variant="primary">Practice now</Button>
-        </Link>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
-        <ScoreCard label="Overall band" value={demoStats.overallBand.toFixed(1)} hint="estimated" accent />
-        <ScoreCard label="Accuracy" value={`${demoStats.accuracy}%`} hint="last 30 days" />
-        <ScoreCard label="Questions" value={`${demoStats.questionsCompleted}`} hint="completed" />
-        <ScoreCard label="Streak" value={`${demoStats.currentStreak} days`} hint="keep going!" />
-      </div>
-
-      <div className="mt-10 grid gap-8 lg:grid-cols-2">
-        {/* Score history */}
-        <DashboardCard
-          title="Estimated score over time"
-          action={
-            <Badge variant="accent">
-              <Sparkles className="h-3 w-3" /> target {demoTarget.targetBand.toFixed(1)}
-            </Badge>
-          }
+        <Link
+          href="/practice"
+          className="inline-flex h-11 items-center justify-center rounded-lg bg-brand-700 px-5 text-sm font-semibold text-white transition hover:bg-brand-800"
         >
-          <LineChart
-            values={demoScoreHistory}
-            labels={['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5']}
-          />
-          <p className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
-            <TrendingUp className="h-4 w-4" /> Growing steadily — keep the habit.
-          </p>
-        </DashboardCard>
+          S&apos;entraîner
+        </Link>
+      </header>
 
-        {/* Skills */}
-        <DashboardCard title="Skills">
-          <div className="space-y-4">
-            {demoSkills.map((s) => (
-              <SkillCard key={s.skill} skill={s.skill} band={s.band} barClassName={s.color} />
-            ))}
+      <section className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {[
+          { label: 'NIVEAU ESTIMÉ', value: stats.overallBand !== null ? stats.overallBand.toFixed(1) : '—' },
+          { label: 'PRÉCISION', value: stats.accuracy !== null ? `${Math.round(stats.accuracy)} %` : '—' },
+          { label: 'QUESTIONS TRAITÉES', value: String(stats.questionsCompleted) },
+          { label: 'SÉRIE EN COURS', value: `${stats.streak} jour${stats.streak > 1 ? 's' : ''}` },
+        ].map((c) => (
+          <div key={c.label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+            <p className="micro-label">{c.label}</p>
+            <p className="mt-2 text-2xl font-semibold tracking-tight text-ink dark:text-white">{c.value}</p>
           </div>
-          <p className="mt-5 flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-            <Flame className="h-4 w-4 text-brand-500" /> Speaking needs the most attention this week.
-          </p>
-        </DashboardCard>
-      </div>
+        ))}
+      </section>
 
-      {/* Topics */}
-      <div className="mt-10 grid gap-8 lg:grid-cols-2">
-        <DashboardCard title="Weak topics">
-          <BarChart
-            items={demoWeakTopics.map((t) => ({ label: t.topic, value: t.accuracy }))}
-          />
-        </DashboardCard>
-        <DashboardCard title="Strong topics">
-          <BarChart
-            items={demoStrongTopics.map((t) => ({ label: t.topic, value: t.accuracy }))}
-          />
-        </DashboardCard>
-      </div>
+      <section className="mt-10 grid gap-4 sm:grid-cols-2">
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="font-serif text-2xl tracking-tight text-ink dark:text-white">Compétences</h2>
+          <ul className="mt-5 space-y-4">
+            {skills.map((s) => (
+              <li key={s.skill}>
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="text-sm font-semibold text-ink dark:text-slate-100">{s.skill}</p>
+                  <p className="text-xs text-ink-faint dark:text-slate-500">{s.label}</p>
+                </div>
+                <Progress value={s.pct} className="mt-2" />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="font-serif text-2xl tracking-tight text-ink dark:text-white">
+            Points à consolider
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-ink-soft dark:text-slate-400">
+            {hasData
+              ? 'Vos prochains exercices cibleront automatiquement les compétences les plus fragiles.'
+              : 'Aucune donnée pour le moment : passez le diagnostic gratuit pour obtenir vos premiers scores estimés.'}
+          </p>
+          <ul className="mt-4 space-y-2 text-sm text-ink-soft dark:text-slate-400">
+            <li>→ Diagnostic : lecture, écoute, vocabulaire.</li>
+            <li>→ Exercices quotidiens : 20 à 30 minutes recommandées.</li>
+            <li>→ Examen blanc : une fois par semaine, chronométré.</li>
+          </ul>
+        </div>
+      </section>
     </div>
   );
 }

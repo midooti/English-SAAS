@@ -15,9 +15,49 @@ html {
 }
 
 body {
-  @apply bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  @apply bg-paper font-sans text-ink antialiased dark:bg-slate-950 dark:text-slate-100;
 }
 
 ::selection {
-  @apply bg-brand-500/20;
+  @apply bg-brand-700/15;
+}
+
+/* ---------------------------------------------------------------- */
+/* Système éditorial Prep-Anglais (composants utilitaires partagés)  */
+/* ---------------------------------------------------------------- */
+
+@layer components {
+  /* Étiquette micro (ex. « 01 — Héro », « TOEFL · Examen ») */
+  .micro-label {
+    @apply text-xs font-semibold uppercase tracking-[0.16em] text-ink-faint dark:text-slate-400;
+  }
+
+  .micro-label-accent {
+    @apply text-xs font-semibold uppercase tracking-[0.16em] text-accent-600 dark:text-accent-300;
+  }
+
+  /* Séparateur fin utilisé entre grandes sections éditoriales */
+  .thin-sep {
+    @apply border-t border-slate-200 dark:border-slate-800;
+  }
+
+  /* Carte académique sobre (bordure fine, coin discret, ombre légère) */
+  .card-academic {
+    @apply rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900;
+  }
+
+  /* Règle de pagination / numéro de section (serif) */
+  .section-number {
+    @apply font-serif text-sm font-medium text-accent-600 dark:text-accent-300;
+  }
+}
+
+/* Focus visible — accessibilité clavier, cohérent partout */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

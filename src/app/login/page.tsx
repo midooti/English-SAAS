@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import AuthCard from '@/components/AuthCard';
 
 export const metadata: Metadata = {
-  title: 'Log in',
-  description: 'Log in to your ScoreUp account.',
+  title: 'Se connecter | Prep-Anglais',
+  description: 'Connectez-vous à votre compte Prep-Anglais pour reprendre votre préparation.',
   robots: { index: false } as const,
 };
 

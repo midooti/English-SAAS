@@ -1,70 +1,57 @@
-import Link from 'next/link';
-import { Check, Crown } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/utils';
 import PricingButton from '@/components/PricingButton';
+import { type Plan, type Currency } from '@/lib/config';
 
-export type Plan = {
-  slug: 'premium_monthly' | 'premium_yearly';
-  name: string;
-  price: number;
-  description: string;
-  bestValue?: boolean;
-  features: string[];
-};
-
-export default function PricingCard({ plan }: { plan: Plan }) {
-  const highlight = plan.bestValue;
+/**
+ * Carte d'abonnement (version éditoriale) : sobre, lisible, sans motifs
+ * décoratifs ni accroches marketing.
+ */
+export default function PricingCard({
+  plan,
+  currency,
+}: {
+  plan: Plan;
+  currency: Currency;
+}) {
+  const highlight = plan.slug === 'premium_yearly';
+  const symbol = currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency;
   return (
     <Card
       className={cn(
-        'relative flex flex-col overflow-hidden p-7 transition hover:-translate-y-1',
+        'relative flex flex-col p-8',
         highlight &&
-          'border-transparent bg-gradient-to-b from-brand-600 to-brand-700 text-white shadow-lift'
+          'border-brand-300 bg-brand-50/40 dark:border-brand-700 dark:bg-brand-900/20 shadow-lift'
       )}
     >
-      {highlight && (
-        <Badge
-          variant="accent"
-          className="absolute right-5 top-5 bg-white text-brand-700"
-        >
-          Best value
-        </Badge>
-      )}
-
-      <div className="flex items-center gap-2">
-        {highlight && <Crown className="h-5 w-5 text-accent-300" />}
-        <h3 className={cn('text-lg font-extrabold', highlight ? 'text-white' : 'text-slate-900 dark:text-white')}>
-          {plan.name}
-        </h3>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-serif text-2xl tracking-tight text-ink dark:text-white">{plan.name}</h2>
+        {plan.bestValue && (
+          <span className="micro-label-accent shrink-0">Recommandé</span>
+        )}
       </div>
-      <p className={cn('mt-1 text-sm', highlight ? 'text-brand-100' : 'text-slate-500 dark:text-slate-400')}>
-        {plan.description}
-      </p>
+      <p className="mt-2 text-sm leading-relaxed text-ink-soft dark:text-slate-400">{plan.description}</p>
 
-      <p className="mt-6 flex items-baseline gap-1">
-        <span
-          className={cn(
-            'text-5xl font-extrabold tracking-tight',
-            highlight ? 'text-white' : 'text-slate-900 dark:text-white'
-          )}
-        >
-          €{formatPrice(plan.price)}
+      <p className="mt-7 flex items-baseline gap-1">
+        <span className="text-5xl font-semibold tracking-tight text-ink dark:text-white">
+          {symbol}
+          {formatPrice(plan.monthlyPrice)}
         </span>
-        <span className={cn('text-sm font-medium', highlight ? 'text-brand-100' : 'text-slate-400')}>
-          / {plan.slug.includes('year') ? 'year' : 'month'}
+        <span className="text-sm font-medium text-ink-faint dark:text-slate-500">
+          {plan.billingPeriodLabel}
         </span>
       </p>
 
-      <ul className="mt-6 flex-1 space-y-2.5">
+      <ul className="mt-7 flex-1 space-y-2.5">
         {plan.features.map((f) => (
-          <li key={f} className="flex items-start gap-2 text-sm">
+          <li key={f} className="flex items-start gap-2.5 text-sm">
             <Check
-              className={cn('mt-0.5 h-4 w-4 shrink-0', highlight ? 'text-accent-300' : 'text-brand-500')}
+              className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-300"
+              aria-hidden="true"
             />
-            <span className={highlight ? 'text-brand-50' : 'text-slate-600 dark:text-slate-300'}>{f}</span>
+            <span className="text-ink dark:text-slate-200">{f}</span>
           </li>
         ))}
       </ul>
@@ -72,8 +59,8 @@ export default function PricingCard({ plan }: { plan: Plan }) {
       <div className="mt-8">
         <PricingButton
           plan={plan.slug}
-          variant={highlight ? 'secondary' : 'primary'}
-          label="Start Premium"
+          label={plan.ctaLabel}
+          variant={highlight ? 'primary' : 'secondary'}
         />
       </div>
     </Card>

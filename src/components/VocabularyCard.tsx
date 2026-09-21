@@ -1,16 +1,31 @@
 'use client';
 
 import { useState } from 'react';
-import { Bookmark, Check, Volume2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { VocabWord } from '@/lib/vocabulary';
+import type { VocabWord, VocabCategory } from '@/lib/vocabulary';
+
+const categoryLabels: Record<VocabCategory, string> = {
+  Academic: 'Académique',
+  Business: 'Professionnel',
+  University: 'Université',
+  Travel: 'Voyage',
+  Technology: 'Technologie',
+  Science: 'Sciences',
+  'Daily English': 'Anglais courant',
+};
+
+const difficultyLabels: Record<VocabWord['difficulty'], string> = {
+  easy: 'Facile',
+  medium: 'Intermédiaire',
+  hard: 'Difficile',
+};
 
 /**
- * Carte de vocabulaire : flashcard front/back + "Add to review".
- * (Review = répétition espacée ; stockée localement en démo, Supabase en prod.)
+ * Carte de vocabulaire : flashcard recto/verso + « Ajouter à la révision ».
+ * (Révision = répétition espacée ; stockée localement en développement, Supabase en production.)
  */
 export default function VocabularyCard({ word }: { word: VocabWord }) {
   const [flipped, setFlipped] = useState(false);
@@ -20,9 +35,9 @@ export default function VocabularyCard({ word }: { word: VocabWord }) {
     e.stopPropagation();
     setReviewed(true);
     try {
-      const list = JSON.parse(localStorage.getItem('scoreup_review') ?? '[]') as string[];
+      const list = JSON.parse(localStorage.getItem('prep_review') ?? '[]') as string[];
       if (!list.includes(word.id)) {
-        localStorage.setItem('scoreup_review', JSON.stringify([...list, word.id]));
+        localStorage.setItem('prep_review', JSON.stringify([...list, word.id]));
       }
     } catch {
       /* ignore */
@@ -35,31 +50,30 @@ export default function VocabularyCard({ word }: { word: VocabWord }) {
       onClick={() => setFlipped((f) => !f)}
     >
       <div className="flex items-start justify-between">
-        <Badge variant="neutral">{word.category}</Badge>
+        <Badge variant="neutral">{categoryLabels[word.category]}</Badge>
         <Badge
           variant={word.difficulty === 'easy' ? 'success' : word.difficulty === 'medium' ? 'default' : 'accent'}
         >
-          {word.difficulty}
+          {difficultyLabels[word.difficulty]}
         </Badge>
       </div>
 
       {!flipped ? (
         <div className="my-4">
-          <p className="flex items-center gap-2 text-xl font-extrabold text-slate-900 dark:text-white">
-            <Volume2 className="h-5 w-5 text-brand-400" aria-hidden="true" />
-            {word.word}
+          <p className="font-serif text-xl tracking-tight text-ink dark:text-white">{word.word}</p>
+          <p className="mt-1 text-sm text-ink-faint dark:text-slate-500">
+            Cliquer pour voir la définition
           </p>
-          <p className="mt-1 text-sm text-slate-400">Tap to see definition</p>
         </div>
       ) : (
         <div className="my-4">
-          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{word.definition}</p>
-          <p className="mt-2 text-sm italic text-slate-500 dark:text-slate-400">“{word.example}”</p>
+          <p className="text-sm font-semibold text-ink dark:text-slate-100">{word.definition}</p>
+          <p className="mt-2 text-sm italic text-ink-soft dark:text-slate-400">“{word.example}”</p>
           <div className="mt-2 flex flex-wrap gap-1">
             {word.synonyms.map((s) => (
               <span
                 key={s}
-                className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-300"
+                className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-ink-soft dark:bg-slate-800 dark:text-slate-300"
               >
                 {s}
               </span>
@@ -74,8 +88,7 @@ export default function VocabularyCard({ word }: { word: VocabWord }) {
         onClick={handleReview}
         className={cn('w-full', reviewed && 'text-emerald-600')}
       >
-        {reviewed ? <Check className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-        {reviewed ? 'Added to review' : 'Add to review'}
+        {reviewed ? 'Ajouté à la révision' : 'Ajouter à la révision'}
       </Button>
     </Card>
   );

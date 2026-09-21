@@ -1,6 +1,7 @@
 -- ============================================================
--- ScoreUp — Schéma Supabase (exécuter : Supabase > SQL Editor)
--- Architecture de données complète (MVPs + V2).
+-- Prep-Anglais — Schéma Supabase (exécuter : Supabase > SQL Editor)
+-- Architecture de données complète (profils, tests, résultats,
+-- suivi, vocabulaire, abonnements Stripe + Row Level Security).
 -- ============================================================
 
 create extension if not exists "pgcrypto";
@@ -13,6 +14,10 @@ create table if not exists public.profiles (
   name text,
   email text,
   plan text not null default 'free' check (plan in ('free','premium')),
+  stripe_customer_id text,
+  target_exam text,
+  target_score text,
+  exam_date date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -57,7 +62,7 @@ create table if not exists public.questions (
   difficulty text not null default 'medium' check (difficulty in ('easy','medium','hard')),
   passage text,
   prompt text not null,
-  audio_url text, -- architecture audio de démo (placeholders à brancher)
+  audio_url text,
   options jsonb not null default '[]'::jsonb,
   correct_index integer not null,
   explanation text,
@@ -159,9 +164,12 @@ create table if not exists public.subscriptions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   plan text not null check (plan in ('premium_monthly','premium_yearly')),
-  status text not null default 'incomplete',
+  status text not null default 'incomplete' check (
+    status in ('incomplete','incomplete_expired','trialing','active','past_due','canceled','unpaid')
+  ),
   stripe_subscription_id text unique,
   current_period_end timestamptz,
+  cancel_at_period_end boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -218,6 +226,15 @@ create policy "attempts lecture proprietaire"
 create policy "attempts insertion proprietaire"
   on public.attempts for insert to authenticated with check (auth.uid() = user_id);
 
+create policy "reponses lecture proprietaire"
+  on public.answers for select to authenticated using (
+    auth.uid() = (select user_id from public.attempts where id = attempt_id)
+  );
+create policy "reponses insertion proprietaire"
+  on public.answers for insert to authenticated with check (
+    auth.uid() = (select user_id from public.attempts where id = attempt_id)
+  );
+
 create policy "sessions lecture proprietaire"
   on public.study_sessions for select to authenticated using (auth.uid() = user_id);
 create policy "sessions insertion proprietaire"
@@ -225,6 +242,10 @@ create policy "sessions insertion proprietaire"
 
 create policy "progress lecture proprietaire"
   on public.user_progress for select to authenticated using (auth.uid() = user_id);
+create policy "progress insertion proprietaire"
+  on public.user_progress for insert to authenticated with check (auth.uid() = user_id);
+create policy "progress maj proprietaire"
+  on public.user_progress for update to authenticated using (auth.uid() = user_id);
 
 create policy "streaks lecture proprietaire"
   on public.streaks for select to authenticated using (auth.uid() = user_id);

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import BlogCard from '@/components/BlogCard';
+import BlogCard, { categoryLabel } from '@/components/BlogCard';
 import CtaBanner from '@/components/seo/CtaBanner';
 import Breadcrumbs from '@/components/seo/Breadcrumbs';
 import { seoMetadata } from '@/lib/seo';
@@ -8,17 +8,15 @@ import { cn } from '@/lib/utils';
 
 export function generateMetadata({ searchParams }: { searchParams: { category?: string } }): Metadata {
   const category = searchParams.category;
-  const base =
-    category && blogCategories.includes(category as (typeof blogCategories)[number])
-      ? `${category}`
-      : 'English test preparation';
+  const valid = category && blogCategories.includes(category as (typeof blogCategories)[number]);
+  const base = valid ? (category as string) : 'Préparation aux examens d\u2019anglais';
   return seoMetadata({
-    title: category
-      ? `${category} Articles — Learn English Test Strategies | ScoreUp`
-      : 'Blog — English Test Preparation Strategies | ScoreUp',
-    description: `Practical ${base.toLowerCase()} guides: TOEFL, TOEIC, IELTS, vocabulary, grammar and study plans. Written by teachers, free to read.`,
+    title: valid
+      ? `${categoryLabel(base)} — Guides et stratégies d\u2019examen | Prep-Anglais`
+      : 'Blog — Stratégies de préparation aux examens d\u2019anglais | Prep-Anglais',
+    description: `Des guides pratiques de préparation aux examens d\u2019anglais : TOEFL, TOEIC, IELTS, vocabulaire, grammaire et plans d\u2019étude. Rédigés par des enseignants, gratuits à lire.`,
     path: '/blog',
-    overline: 'Test prep strategies',
+    overline: 'Stratégies de préparation',
   });
 }
 
@@ -35,18 +33,16 @@ export default function BlogIndex({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Blog' }]} />
+      <Breadcrumbs items={[{ label: 'Accueil', href: '/' }, { label: 'Blog' }]} />
 
       <header className="max-w-3xl">
-        <p className="text-sm font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">
-          ScoreUp blog
-        </p>
-        <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
-          English test preparation, without the fluff
+        <p className="micro-label">Le blog Prep-Anglais</p>
+        <h1 className="mt-3 font-serif text-4xl leading-tight tracking-tight text-ink sm:text-5xl dark:text-white">
+          La préparation aux examens d&apos;anglais, sans fioritures
         </h1>
-        <p className="mt-4 text-lg text-slate-500 dark:text-slate-400">
-          Strategy guides for TOEFL, TOEIC, IELTS, vocabulary and grammar — written by teachers,
-          kept practical, and free to read.
+        <p className="mt-4 text-lg leading-relaxed text-ink-soft dark:text-slate-400">
+          Des guides de stratégie pour TOEFL, TOEIC, IELTS, le vocabulaire et la grammaire —
+          rédigés par des enseignants, restés pratiques et gratuits.
         </p>
       </header>
 
@@ -56,11 +52,11 @@ export default function BlogIndex({
           className={cn(
             'rounded-full px-4 py-1.5 text-sm font-semibold transition',
             !active
-              ? 'bg-brand-600 text-white'
+              ? 'bg-brand-700 text-white'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
           )}
         >
-          All
+          Tous
         </a>
         {blogCategories.map((category) => (
           <a
@@ -69,11 +65,11 @@ export default function BlogIndex({
             className={cn(
               'rounded-full px-4 py-1.5 text-sm font-semibold transition',
               active === category
-                ? 'bg-brand-600 text-white'
+                ? 'bg-brand-700 text-white'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
             )}
           >
-            {category}
+            {categoryLabel(category)}
           </a>
         ))}
       </div>
@@ -85,16 +81,16 @@ export default function BlogIndex({
       </div>
 
       {posts.length === 0 && (
-        <p className="mt-10 text-slate-500 dark:text-slate-400">
-          No articles in this category yet — check back soon.
+        <p className="mt-10 text-ink-soft dark:text-slate-400">
+          Aucun article dans cette catégorie pour le moment — revenez bientôt.
         </p>
       )}
 
       <CtaBanner
-        title="Reading helps. Practice changes the score."
-        text="Get your estimated level free and start on a plan built around your weakest skill."
+        title="Lire aide. Pratiquer fait progresser."
+        text="Obtenez gratuitement votre niveau estimé et démarrez un plan construit autour de votre compétence la plus fragile."
         href="/diagnostic"
-        label="Get your free estimate"
+        label="Obtenir mon estimation gratuite"
       />
     </div>
   );

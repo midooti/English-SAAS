@@ -30,31 +30,31 @@ function AccuracyCalculator({ mode }: { mode: 'toefl' | 'toeic' }) {
   }, [correct, total]);
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900">
-      <p className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-        <Calculator className="h-4 w-4 text-brand-500" />
-        {mode === 'toefl' ? 'TOEFL' : 'TOEIC'} estimated score calculator
+    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+      <p className="text-sm font-semibold text-ink dark:text-white">
+        <Calculator className="mr-1 inline h-4 w-4 text-brand-500" />
+        Calculateur de score estimé {mode === 'toefl' ? 'TOEFL' : 'TOEIC'}
       </p>
 
       <div className="mt-5 grid gap-5 sm:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Correct answers</span>
+          <span className="text-sm font-semibold text-ink-soft dark:text-slate-300">Bonnes réponses</span>
           <input
             type="number"
             min={0}
             value={correct}
             onChange={(e) => setCorrect(Math.max(0, Number(e.target.value)))}
-            className="mt-1.5 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
         </label>
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Total questions</span>
+          <span className="text-sm font-semibold text-ink-soft dark:text-slate-300">Total de questions</span>
           <input
             type="number"
             min={1}
             value={total}
             onChange={(e) => setTotal(Math.max(1, Number(e.target.value)))}
-            className="mt-1.5 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
         </label>
       </div>
@@ -66,32 +66,36 @@ function AccuracyCalculator({ mode }: { mode: 'toefl' | 'toeic' }) {
         value={accuracy}
         onChange={(e) => setCorrect(Math.round((Number(e.target.value) / 100) * total))}
         className="mt-6 w-full accent-brand-600"
-        aria-label="Accuracy"
+        aria-label="Précision"
       />
 
       {result && (
-        <div className="mt-6 rounded-2xl bg-slate-50 p-5 text-center dark:bg-slate-800">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Estimated score</p>
-          <p className="mt-1 text-5xl font-extrabold text-brand-600 dark:text-brand-400">{result.band}</p>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">based on {accuracy}% accuracy</p>
+        <div className="mt-6 rounded-lg bg-slate-50 p-5 text-center dark:bg-slate-800">
+          <p className="micro-label">Score estimé</p>
+          <p className="mt-2 font-serif text-5xl tracking-tight text-brand-700 dark:text-brand-300">{result.band}</p>
+          <p className="mt-2 text-sm text-ink-soft dark:text-slate-300">
+            sur la base de {accuracy} % de bonnes réponses
+          </p>
           {mode === 'toeic' && (
-            <p className="mt-2 text-sm font-semibold text-slate-600 dark:text-slate-200">
-              ≈ TOEIC equivalent: {result.toeicEstimate} / 990
+            <p className="mt-2 text-sm font-semibold text-ink dark:text-slate-200">
+              ≈ Équivalent TOEIC : {result.toeicEstimate} / 990
             </p>
           )}
-          <p className="mt-3 text-xs text-slate-400">Non-official estimate for planning only.</p>
+          <p className="mt-3 text-xs text-ink-faint dark:text-slate-500">
+            Estimation non officielle, uniquement pour la planification.
+          </p>
         </div>
       )}
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <Link href="/diagnostic">
           <Button variant="accent" onClick={() => trackEvent('tool_used', { tool: `${mode}-score-calculator` })}>
-            Measure it properly — free diagnostic
+            Mesurez-le précisément — diagnostic gratuit
           </Button>
         </Link>
         {result && (
           <ShareControls
-            text={`My estimated ${mode.toUpperCase()} score is ${result.band} (${accuracy}% accuracy demo calculator)`}
+            text={`${mode.toUpperCase()} : mon score estimé est de ${result.band} sur 9 (${accuracy} % de bonnes réponses, calculateur Prep-Anglais)`}
           />
         )}
       </div>
@@ -116,19 +120,19 @@ function IeltsAverage() {
   ];
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900">
-      <p className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-        <Calculator className="h-4 w-4 text-brand-500" />
-        IELTS overall band calculator
+    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+      <p className="text-sm font-semibold text-ink dark:text-white">
+        <Calculator className="mr-1 inline h-4 w-4 text-brand-500" />
+        Calculateur de bande globale IELTS
       </p>
-      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-        Enter your four section bands (0–9 in half points). The overall band is the rounded average.
+      <p className="mt-2 text-sm text-ink-soft dark:text-slate-400">
+        Saisissez vos bandes par section (0–9, par demi-point). La bande globale est la moyenne arrondie.
       </p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         {rows.map(([key, label]) => (
           <label key={key} className="block">
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{label}</span>
+            <span className="text-sm font-semibold text-ink-soft dark:text-slate-300">{label}</span>
             <input
               type="number"
               min={0}
@@ -136,27 +140,27 @@ function IeltsAverage() {
               step={0.5}
               value={sections[key]}
               onChange={(e) => set(key, Math.max(0, Math.min(9, Number(e.target.value))))}
-              className="mt-1.5 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </label>
         ))}
       </div>
 
-      <div className="mt-6 rounded-2xl bg-slate-50 p-5 text-center dark:bg-slate-800">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Overall band</p>
-        <p className="mt-1 text-5xl font-extrabold text-brand-600 dark:text-brand-400">{overall}</p>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
-          average {average.toFixed(2)} (rounded to nearest 0.5)
+      <div className="mt-6 rounded-lg bg-slate-50 p-5 text-center dark:bg-slate-800">
+        <p className="micro-label">Bande globale</p>
+        <p className="mt-2 font-serif text-5xl tracking-tight text-brand-700 dark:text-brand-300">{overall}</p>
+        <p className="mt-2 text-sm text-ink-soft dark:text-slate-300">
+          moyenne {average.toFixed(2).replace('.', ',')} (arrondie à la 0,5 la plus proche)
         </p>
       </div>
 
       <div className={cn('mt-6 flex flex-wrap items-center justify-between gap-3')}>
         <Link href="/diagnostic">
           <Button variant="accent" onClick={() => trackEvent('tool_used', { tool: 'ielts-score-calculator' })}>
-            Measure it properly — free diagnostic
+            Mesurez-le précisément — diagnostic gratuit
           </Button>
         </Link>
-        <ShareControls text={`My estimated IELTS overall band is ${overall} (calculator estimate)`} />
+        <ShareControls text={`Mon score IELTS estimé est de ${overall} (bande globale, calculateur Prep-Anglais)`} />
       </div>
     </div>
   );

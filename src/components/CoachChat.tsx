@@ -1,22 +1,27 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Bot, Send, User } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { getAIAnswer, SUGGESTED_PROMPTS, type AIAnswer } from '@/lib/ai';
+import { Send } from 'lucide-react';
+import { getAIAnswer, type AIAnswer } from '@/lib/ai';
 import { cn } from '@/lib/utils';
+
+const SUGGESTED_PROMPTS = [
+  'Analysez mes points faibles',
+  'Construisez mon plan d\u2019étude du jour',
+  'Expliquez mes dernières erreurs',
+  'Donnez-moi un exercice d\u2019expression orale TOEFL',
+  'Proposez-moi du vocabulaire universitaire',
+];
 
 type Message = {
   role: 'user' | 'assistant';
   text: string;
-  demo?: boolean;
 };
 
 const INITIAL: Message[] = [
   {
     role: 'assistant',
-    text: "Hi! I'm your AI Coach. Ask me anything about your English preparation — even 'Analyze my weakest skill'.",
-    demo: true,
+    text: 'Bonjour ! Je suis votre assistant de préparation Prep-Anglais. Posez-moi vos questions sur votre apprentissage — par exemple « Analysez mes points faibles ».',
   },
 ];
 
@@ -40,11 +45,14 @@ export default function CoachChat() {
 
     try {
       const answer: AIAnswer = await getAIAnswer(trimmed);
-      setMessages((m) => [...m, { role: 'assistant', text: answer.text, demo: answer.demo }]);
+      setMessages((m) => [...m, { role: 'assistant', text: answer.text }]);
     } catch {
       setMessages((m) => [
         ...m,
-        { role: 'assistant', text: 'Sorry, the coach is unavailable right now.', demo: true },
+        {
+          role: 'assistant',
+          text: 'L\u2019assistant est momentanément indisponible. Réessayez dans quelques instants.',
+        },
       ]);
     } finally {
       setBusy(false);
@@ -52,17 +60,18 @@ export default function CoachChat() {
   }
 
   return (
-    <div className="mx-auto flex h-[68vh] max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900">
-      {/* Header */}
-      <div className="flex items-center gap-3 border-b border-slate-100 p-4 dark:border-slate-800">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-accent-600 text-white">
-          <Bot className="h-5 w-5" />
+    <div className="mx-auto flex h-[68vh] max-w-2xl flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900">
+      {/* En-tête */}
+      <div className="flex items-center gap-3 border-b border-slate-200 p-4 dark:border-slate-800">
+        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-700 font-serif text-sm font-semibold tracking-wide text-white">
+          PA
         </span>
         <div>
-          <p className="text-sm font-bold text-slate-900 dark:text-white">AI Coach</p>
-          <p className="flex items-center gap-1.5 text-xs text-slate-400">
-            Demo assistant
-            <Badge variant="accent">demo</Badge>
+          <p className="font-serif text-lg leading-tight tracking-tight text-ink dark:text-white">
+            Assistant de préparation
+          </p>
+          <p className="text-xs text-ink-faint dark:text-slate-500">
+            Conseils, corrigés et plan d&apos;étude.
           </p>
         </div>
       </div>
@@ -73,22 +82,21 @@ export default function CoachChat() {
           <div
             key={i}
             className={cn(
-              'flex w-fit max-w-[85%] flex-col gap-1 rounded-2xl px-4 py-3 text-sm leading-relaxed',
+              'flex w-fit max-w-[85%] flex-col gap-1 rounded-lg px-4 py-3 text-sm leading-relaxed',
               m.role === 'user'
-                ? 'ml-auto bg-brand-600 text-white'
-                : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+                ? 'ml-auto bg-brand-700 text-white'
+                : 'bg-slate-100 text-ink dark:bg-slate-800 dark:text-slate-200'
             )}
           >
-            <span className="flex items-center gap-1.5 text-xs font-bold">
-              {m.role === 'user' ? <User className="h-3 w-3" /> : <Bot className="h-3 w-3" />}
-              {m.role === 'user' ? 'You' : 'Coach'}
+            <span className="text-xs font-bold uppercase tracking-wide">
+              {m.role === 'user' ? 'Vous' : 'Assistant'}
             </span>
             {m.text}
           </div>
         ))}
 
         {busy && (
-          <div className="flex w-fit items-center gap-2 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-400 dark:bg-slate-800">
+          <div className="flex w-fit items-center gap-2 rounded-lg bg-slate-100 px-4 py-3 text-sm text-ink-faint dark:bg-slate-800 dark:text-slate-400">
             <span className="h-2 w-2 animate-bounce rounded-full bg-brand-400" />
             <span className="h-2 w-2 animate-bounce rounded-full bg-brand-400 [animation-delay:120ms]" />
             <span className="h-2 w-2 animate-bounce rounded-full bg-brand-400 [animation-delay:240ms]" />
@@ -97,23 +105,23 @@ export default function CoachChat() {
         <div ref={scrollRef} />
       </div>
 
-      {/* Suggested prompts */}
+      {/* Sujets suggérés */}
       <div className="flex gap-2 overflow-x-auto px-5 pb-3">
         {SUGGESTED_PROMPTS.map((p) => (
           <button
             key={p}
             type="button"
             onClick={() => send(p)}
-            className="shrink-0 rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700 transition hover:bg-brand-100 dark:border-slate-700 dark:bg-slate-800 dark:text-brand-300"
+            className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-ink-soft transition hover:border-brand-400 hover:text-brand-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
           >
             {p}
           </button>
         ))}
       </div>
 
-      {/* Input */}
+      {/* Champ de saisie */}
       <form
-        className="flex items-center gap-2 border-t border-slate-100 p-4 dark:border-slate-800"
+        className="flex items-center gap-2 border-t border-slate-200 p-4 dark:border-slate-800"
         onSubmit={(e) => {
           e.preventDefault();
           send(input);
@@ -122,15 +130,15 @@ export default function CoachChat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="How can I improve my TOEFL speaking?"
-          className="h-11 flex-1 rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-          aria-label="Message au coach"
+          placeholder="Comment améliorer mon expression orale au TOEFL ?"
+          className="h-11 flex-1 rounded-lg border border-slate-200 bg-white px-4 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          aria-label="Message à l'assistant de préparation"
         />
         <button
           type="submit"
           disabled={busy || !input.trim()}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white transition hover:bg-brand-700 disabled:opacity-50"
-          aria-label="Envoyer"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-700 text-white transition hover:bg-brand-800 disabled:opacity-50"
+          aria-label="Envoyer le message"
         >
           <Send className="h-5 w-5" />
         </button>

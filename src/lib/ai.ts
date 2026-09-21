@@ -13,29 +13,29 @@ export type AIAnswer = {
 
 /** Suggestions affichées dans le chat. */
 export const SUGGESTED_PROMPTS = [
-  'Analyze my weakest skill',
-  "Create today's study plan",
-  'Explain my latest mistakes',
-  'Give me a TOEFL speaking exercise',
-  'Give me vocabulary for university',
+  'Analysez ma compétence la plus faible',
+  'Créez le plan d\u2019étude du jour',
+  'Expliquez mes dernières erreurs',
+  'Donnez-moi un exercice d\u2019expression orale TOEFL',
+  'Donnez-moi du vocabulaire universitaire',
 ];
 
 function keywordResponse(prompt: string): string {
   const p = prompt.toLowerCase();
 
-  if (p.includes('weak') || p.includes('skill'))
-    return "Your weakest skill is Speaking (4.0). Let's fix it: 3 short responses a day, record yourself, and focus on fluency over accuracy. I've queued 5 speaking exercises for you.";
-  if (p.includes('plan') || p.includes('schedule'))
-    return "Here's today's plan: Reading 10 min, Listening 8 min, Vocabulary 5 min, Speaking 5 min, Writing 10 min. Total: 38 minutes — enough to keep your 7-day streak alive.";
-  if (p.includes('mistake') || p.includes('error') || p.includes('wrong'))
-    return "Your most frequent mistake last week was verb tense agreement in Writing (18% of errors). Drill #2 and #7 fix exactly that. Want a 5-question warm-up?";
-  if (p.includes('speaking') && p.includes('toefl'))
-    return "TOEFL Speaking tip: use the 15s preparation window to write one keyword per idea. Structure: claim → reason → example. Try: 'Do you prefer studying alone or in groups? Why?'";
-  if (p.includes('vocabulary') || p.includes('university'))
-    return "University vocabulary pack: academic, hypothesis, methodology, paradigm, coherent. Each has a flashcard, example and synonym ready for review.";
-  if (p.includes('listening'))
-    return "Listening is your strong skill (5.1). Keep it sharp with one TOEIC-style talk per day, and practice note-taking for TOEFL lectures.";
-  return 'Answer: Analyzing this for you. Tip: focus on your weakest skill first — practice 20 minutes daily and review your error history weekly. For a specific answer, add one of the suggested prompts.';
+  if (p.includes('faible') || p.includes('comp\u00e9tence') || p.includes('weak') || p.includes('skill'))
+    return 'Votre compétence la plus faible est l\u2019expression orale (4,0). Corrigeons cela : trois réponses courtes par jour, enregistrez-vous, et privilégiez la fluidité à la précision. J\u2019ai préparé 5 exercices d\u2019expression orale pour vous.';
+  if (p.includes('plan') || p.includes('programme') || p.includes('schedule'))
+    return 'Voici le plan du jour : lecture 10 min, écoute 8 min, vocabulaire 5 min, expression orale 5 min, rédaction 10 min. Total : 38 minutes — de quoi conserver votre série de 7 jours.';
+  if (p.includes('erreur') || p.includes('fautes') || p.includes('mistake') || p.includes('error') || p.includes('wrong'))
+    return 'Votre erreur la plus fréquente la semaine dernière concernait la concordance des temps à la rédaction (18 % des erreurs). Les entraînements n°2 et n°7 corrigent précisément ce point. Voulez-vous un échauffement de 5 questions ?';
+  if (p.includes('expression orale') && p.includes('toefl') || (p.includes('speaking') && p.includes('toefl')))
+    return 'Astuce TOEFL : utilisez les 15 secondes de préparation pour noter un mot-clé par idée. Structure : affirmation → raison → exemple. Essayez : « Préférez-vous étudier seul ou en groupe ? Pourquoi ? »';
+  if (p.includes('vocabulaire') || p.includes('universitaire') || p.includes('vocabulary') || p.includes('university'))
+    return 'Pack vocabulaire universitaire : academic, hypothesis, methodology, paradigm, coherent. Chacun dispose d\u2019une carte, d\u2019un exemple et d\u2019un synonyme prêts à réviser.';
+  if (p.includes('ecoute') || p.includes('\u00e9coute') || p.includes('listening'))
+    return 'L\u2019écoute est votre point fort (5,1). Gardez-la affûtée avec un discours de type TOEIC par jour et entraînez-vous à la prise de notes pour les cours magistraux TOEFL.';
+  return 'Réponse : analyse en cours. Astuce : commencez par votre compétence la plus faible — 20 minutes d\u2019entraînement quotidien et une revue hebdomadaire de vos erreurs. Pour une réponse plus précise, utilisez l\u2019une des suggestions.'
 }
 
 /** Réponse du coach. Sans clé API, moteur local de démo. */

@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: page.title,
     description: page.description,
     path: `/practice/${page.slug}`,
-    overline: `Free ${page.exam} practice`,
+    overline: 'Entraînement gratuit',
   });
 }
 
@@ -33,30 +33,30 @@ export default function PracticePage({ params }: Props) {
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
       <Breadcrumbs
         items={[
-          { label: 'Home', href: '/' },
-          { label: 'Practice', href: '/practice' },
+          { label: 'Accueil', href: '/' },
+          { label: 'Exercices', href: '/practice' },
           { label: `${page.exam.toUpperCase()} ${page.skill}` },
         ]}
       />
 
       <header>
-        <p className="text-sm font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">
-          Free {page.exam.toUpperCase()} practice — no account
-        </p>
-        <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
+        <p className="micro-label">Exercices {page.exam.toUpperCase()} — sans compte</p>
+        <h1 className="mt-3 font-serif text-4xl leading-tight tracking-tight text-ink sm:text-5xl dark:text-white">
           {page.h1}
         </h1>
-        <p className="mt-4 text-lg leading-relaxed text-slate-500 dark:text-slate-400">{page.intro}</p>
+        <p className="mt-4 text-lg leading-relaxed text-ink-soft dark:text-slate-400">{page.intro}</p>
       </header>
 
       <div className="mt-8">
         <BlocksRenderer blocks={page.blocks} />
       </div>
 
-      <div className="my-12 rounded-3xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-        <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Try it now</h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Three live questions, instant explanations, free and unlimited.
+      <div className="card-academic my-12 p-6 sm:p-8">
+        <h2 className="font-serif text-2xl tracking-tight text-ink dark:text-white">
+          Essayer maintenant
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft dark:text-slate-400">
+          Trois questions en conditions réelles, explications immédiates, gratuit et sans limite.
         </p>
         <div className="mt-6">
           <EmbeddedPractice exam={page.exam} skill={page.skill} />
@@ -66,10 +66,10 @@ export default function PracticePage({ params }: Props) {
       <FaqSection items={page.faq} />
 
       <CtaBanner
-        title="Want this every day — with limits you can level up?"
-        text="The full practice library trains every question type, tracks progress and keeps daily practice honest."
+        title="Retrouvez cet entraînement chaque jour ?"
+        text="La bibliothèque complète d\u2019exercices couvre tous les types de questions, suit votre progression et ancre la régularité."
         href="/practice"
-        label="Open the practice app"
+        label="Ouvrir les exercices"
       />
     </div>
   );

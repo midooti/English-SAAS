@@ -33,10 +33,10 @@ export default function VocabularyTest() {
         skill: 'vocabulary',
         difficulty: word.difficulty,
         kind: 'mc',
-        prompt: `What does “${word.word}” mean?`,
+        prompt: `Que signifie « ${word.word} » ?`,
         options,
         correctIndex: options.indexOf(word.definition),
-        explanation: `${word.definition}. “${word.example}”`,
+        explanation: `${word.definition}. « ${word.example} »`,
       };
     });
   }, []);
@@ -44,20 +44,20 @@ export default function VocabularyTest() {
   if (done) {
     const percent = Math.round((correct / TOTAL) * 100);
     const verdict =
-      correct >= 8 ? 'Strong academic-range vocabulary.'
-      : correct >= 6 ? 'Solid — build themed word families next.'
-      : 'Start with weekly word families in context.';
+      correct >= 8 ? 'Un vocabulaire académique étendu.'
+      : correct >= 6 ? 'Solide — construisez ensuite des familles de mots thématiques.'
+      : 'Commencez par des familles de mots hebdomadaires, en contexte.';
     return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-soft dark:border-slate-800 dark:bg-slate-900">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Vocabulary result</p>
-        <p className="mt-2 text-6xl font-extrabold text-brand-600 dark:text-brand-400">{correct}/{TOTAL}</p>
-        <p className="mt-3 max-w-sm text-sm text-slate-500 dark:text-slate-400">{verdict}</p>
+      <div className="rounded-lg border border-slate-200 bg-white p-8 text-center shadow-soft dark:border-slate-800 dark:bg-slate-900">
+        <p className="micro-label">Résultat du vocabulaire</p>
+        <p className="mt-2 font-serif text-6xl tracking-tight text-brand-700 dark:text-brand-300">{correct}/{TOTAL}</p>
+        <p className="mt-3 max-w-sm text-sm text-ink-soft dark:text-slate-400">{verdict}</p>
         <div className="mt-4 flex justify-center">
-          <ShareControls text={`I scored ${correct}/${TOTAL} on the free ScoreUp vocabulary test`} />
+          <ShareControls text={`J\u2019ai obtenu ${correct}/${TOTAL} au test de vocabulaire gratuit Prep-Anglais`} />
         </div>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <LinkButton>
-            Practise vocabulary free <ArrowRight className="h-4 w-4" />
+            S&apos;entraîner au vocabulaire gratuitement <ArrowRight className="h-4 w-4" />
           </LinkButton>
           <Button
             variant="secondary"
@@ -67,7 +67,7 @@ export default function VocabularyTest() {
               setDone(false);
             }}
           >
-            <RotateCcw className="h-4 w-4" /> Retry
+            <RotateCcw className="h-4 w-4" /> Recommencer
           </Button>
         </div>
       </div>
@@ -78,17 +78,17 @@ export default function VocabularyTest() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-4 flex items-center justify-between text-sm font-semibold text-slate-500 dark:text-slate-400">
-        <span>Question {index + 1} of {TOTAL}</span>
+      <div className="mb-4 flex items-center justify-between text-sm font-semibold text-ink-soft dark:text-slate-400">
+        <span>Question {index + 1} sur {TOTAL}</span>
         <button
           type="button"
-          className="text-brand-600 hover:underline dark:text-brand-400"
+          className="text-brand-700 hover:underline dark:text-brand-300"
           onClick={() => {
             setIndex(0);
             setCorrect(0);
           }}
         >
-          Restart
+          Recommencer
         </button>
       </div>
       <ProgressBar value={((index + 1) / TOTAL) * 100} className="mb-5" />
@@ -107,7 +107,7 @@ export default function VocabularyTest() {
             }
           }}
         >
-          {index >= TOTAL - 1 ? 'See my score' : 'Next'}
+          {index >= TOTAL - 1 ? 'Voir mon score' : 'Suivant'}
           {index < TOTAL - 1 && <ArrowRight className="h-4 w-4" />}
         </Button>
       </div>

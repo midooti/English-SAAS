@@ -1,67 +1,92 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Lora } from 'next/font/google';
 import Script from 'next/script';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AppProviders from '@/components/providers';
-import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_URL } from '@/lib/config';
+import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_URL, GA_ID, GSC_VERIFICATION } from '@/lib/config';
 import { ogImageUrl } from '@/lib/seo';
-import { analyticsScript } from '@/lib/analytics';
+import { analyticsScript, gtagInitInline } from '@/lib/analytics';
+import { orgWebSiteJsonLd } from '@/lib/seo';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const lora = Lora({ subsets: ['latin'], variable: '--font-serif', style: ['normal', 'italic'], display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'ScoreUp — Prepare for TOEFL, TOEIC, IELTS & English Tests',
+    default: 'Prep-Anglais — Préparation aux examens d\'anglais (TOEFL, TOEIC, IELTS)',
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    'TOEFL preparation',
-    'TOEFL practice test',
-    'TOEIC preparation',
-    'IELTS preparation',
-    'English level test',
-    'score prediction',
+    'préparation TOEFL',
+    'préparation TOEIC',
+    'préparation IELTS',
+    'test TOEFL gratuit',
+    'test TOEIC gratuit',
+    'examen anglais',
+    'test de niveau anglais',
+    'vocabulaire TOEFL',
+    'vocabulaire TOEIC',
+    'exercices TOEFL',
+    'exercices TOEIC',
+    'examen blanc TOEFL',
+    'examen blanc TOEIC',
+    'Cambridge English',
+    'Duolingo English Test',
   ],
+  applicationName: SITE_NAME,
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
     url: `${SITE_URL}/`,
-    locale: 'en_US',
-    title: 'ScoreUp — Prepare for TOEFL, TOEIC, IELTS & English Tests',
-    description: SITE_TAGLINE,
+    locale: 'fr_FR',
+    alternateLocale: 'en_US',
+    title: 'Prep-Anglais — Préparation aux examens d\'anglais',
+    description: SITE_DESCRIPTION,
     images: [
-      { url: ogImageUrl({ title: SITE_TAGLINE, overline: SITE_NAME }), width: 1200, height: 630, alt: SITE_NAME },
+      { url: ogImageUrl({ title: SITE_TAGLINE, overline: SITE_NAME }), width: 1200, height: 630, alt: 'Prep-Anglais — Préparation aux examens d\'anglais' },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ScoreUp — Prepare for TOEFL, TOEIC, IELTS & English Tests',
-    description: SITE_TAGLINE,
+    title: 'Prep-Anglais — Préparation aux examens d\'anglais',
+    description: SITE_DESCRIPTION,
     images: [ogImageUrl({ title: SITE_TAGLINE, overline: SITE_NAME })],
   },
+  creator: SITE_NAME,
   robots: { index: true, follow: true },
-  verification: process.env.NEXT_PUBLIC_GSC_VERIFICATION
-    ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION }
+  verification: GSC_VERIFICATION
+    ? { google: GSC_VERIFICATION }
     : undefined,
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#4f46e5',
+  themeColor: '#1d2936',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} flex min-h-screen flex-col font-sans`}>
+    <html lang="fr" suppressHydrationWarning>
+      <body className={`${inter.variable} ${lora.variable} flex min-h-screen flex-col font-sans`}>
         {analyticsScript && (
-          <Script id="scoreup-ga" strategy="afterInteractive" src={analyticsScript} />
+          <>
+            <Script
+              id="prep-anglais-ga-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{ __html: gtagInitInline() }}
+            />
+            <Script id="prep-anglais-ga" strategy="afterInteractive" src={analyticsScript} />
+          </>
         )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgWebSiteJsonLd()) }}
+        />
         <AppProviders>
           <Navbar />
           <main className="flex-1">{children}</main>

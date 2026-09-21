@@ -1,22 +1,27 @@
 import type { Metadata } from 'next';
 import MockTestCard from '@/components/MockTestCard';
 import { mockTests } from '@/lib/mockTests';
+import { seoMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Mock Tests',
+export const metadata: Metadata = seoMetadata({
+  title: 'Examens blancs TOEFL et TOEIC chronométrés | Prep-Anglais',
   description:
-    'Timed mock tests for TOEFL and TOEIC with estimated practice scores. Free and Premium simulations.',
-};
+    'Simulez votre examen dans les conditions du jour J : examens blancs TOEFL et TOEIC chronométrés, scores estimés et corrigés.',
+  path: '/mock-tests',
+  overline: 'Examens blancs',
+});
 
 export default function MockTestsPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <header className="mx-auto max-w-2xl text-center">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-          Mock tests
+        <p className="micro-label">Examens blancs</p>
+        <h1 className="mt-3 font-serif text-4xl leading-tight tracking-tight text-ink sm:text-5xl dark:text-white">
+          Simuler l&apos;examen dans les conditions du jour J
         </h1>
-        <p className="mt-3 text-slate-500 dark:text-slate-400">
-          Simulate your exam under real timing. Results are estimated practice scores, not official.
+        <p className="mt-4 text-lg leading-relaxed text-ink-soft dark:text-slate-400">
+          Des exercices chronométrés, corrigés à la fin. Les résultats sont des scores
+          estimés — jamais des notes officielles.
         </p>
       </header>
       <div className="mt-12 grid gap-6 sm:grid-cols-2">

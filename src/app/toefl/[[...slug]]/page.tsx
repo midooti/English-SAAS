@@ -12,12 +12,12 @@ type Props = { params: { slug?: string[] } };
 const EXAM_SLUG = 'toefl';
 const EXAM_NAME = 'TOEFL';
 const HUB = {
-  title: 'TOEFL Preparation & Practice — Free Guided Study | ScoreUp',
+  title: 'Préparation au TOEFL — Guides, entraînement et plan d\u2019étude | Prep-Anglais',
   description:
-    'Prepare for the TOEFL with free guides for every section, original practice questions, a score calculator and a study plan.',
-  h1: 'TOEFL Preparation & Practice',
+    'Préparez le TOEFL avec des guides gratuits pour chaque section, des questions d\u2019entraînement originales, un calculateur de score et un plan d\u2019étude.',
+  h1: 'Préparation au TOEFL : méthode et pratique guidée',
   intro:
-    'Work through the TOEFL section by section: how each part is scored, the exact question types, free practice, and a plan that fits your timeline.',
+    'Travaillez le TOEFL section par section : mode de notation de chaque épreuve, types de questions exacts, entraînement gratuit et un plan adapté à votre échéance.',
 };
 
 export function generateStaticParams() {
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: HUB.title,
       description: HUB.description,
       path: `/${EXAM_SLUG}`,
-      overline: `${EXAM_NAME} preparation`,
+      overline: `Préparation ${EXAM_NAME}`,
     });
   }
   const data = findExamPage(EXAM_SLUG, parts.join('/'));

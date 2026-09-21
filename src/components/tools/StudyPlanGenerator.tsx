@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { CalendarDays, Sparkles } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
 import Button from '@/components/ui/button';
 import { trackEvent } from '@/lib/analytics';
 
-const focusCycle = ['Reading practice', 'Listening practice', 'Vocabulary + review', 'Speaking practice', 'Writing practice', 'Mixed skills review'] as const;
+const focusCycle = ['Compréhension écrite', 'Compréhension orale', 'Vocabulaire + révision', 'Expression orale', 'Expression écrite', 'Révision tous types'] as const;
 
 /**
  * Générateur de plan d'étude — crée un calendrier hebdo réaliste.
@@ -28,8 +28,8 @@ export default function StudyPlanGenerator({ exam }: { exam: 'toefl' | 'toeic' }
     const week = w + 1;
     const focal =
       exam === 'toefl'
-        ? ['Speaking + Reading', 'Writing + Listening', 'Vocabulary sprint'][week % 3]
-        : ['Part 2 Question-Response', 'Part 5 Grammar', 'Part 7 Documents'][week % 3];
+        ? ['Expression orale + lecture', 'Rédaction + écoute', 'Session vocabulaire'][week % 3]
+        : ['Partie 2 Question-réponse', 'Partie 5 Grammaire', 'Partie 7 Documents'][week % 3];
     return {
       week,
       focal,
@@ -38,16 +38,16 @@ export default function StudyPlanGenerator({ exam }: { exam: 'toefl' | 'toeic' }
   });
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900">
-      <p className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-        <CalendarDays className="h-4 w-4 text-brand-500" />
-        Your {exam.toUpperCase()} study plan
+    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+      <p className="text-sm font-semibold text-ink dark:text-white">
+        <CalendarDays className="mr-1 inline h-4 w-4 text-brand-500" />
+        Votre plan d&apos;étude {exam.toUpperCase()}
       </p>
 
       <div className="mt-5 grid gap-5 sm:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-            Weeks before the exam: {weeks}
+          <span className="text-sm font-semibold text-ink-soft dark:text-slate-300">
+            Semaines avant l&apos;examen : {weeks}
           </span>
           <input
             type="range"
@@ -59,8 +59,8 @@ export default function StudyPlanGenerator({ exam }: { exam: 'toefl' | 'toeic' }
           />
         </label>
         <label className="block">
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-            Daily practice time: {minutes} min
+          <span className="text-sm font-semibold text-ink-soft dark:text-slate-300">
+            Temps de pratique quotidien : {minutes} min
           </span>
           <input
             type="range"
@@ -74,14 +74,14 @@ export default function StudyPlanGenerator({ exam }: { exam: 'toefl' | 'toeic' }
         </label>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+      <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
         <table className="w-full min-w-[480px] bg-white text-left text-sm dark:bg-slate-900">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300">
-              <th className="px-4 py-3">Week</th>
-              <th className="px-4 py-3">Weekly focus</th>
-              <th className="px-4 py-3">Daily rotation</th>
-              <th className="px-4 py-3">Milestone</th>
+            <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-[0.16em] text-ink-faint dark:border-slate-800 dark:bg-slate-800 dark:text-slate-400">
+              <th className="px-4 py-3">Semaine</th>
+              <th className="px-4 py-3">Focus hebdomadaire</th>
+              <th className="px-4 py-3">Rotation quotidienne</th>
+              <th className="px-4 py-3">Jalon</th>
             </tr>
           </thead>
           <tbody>
@@ -90,18 +90,18 @@ export default function StudyPlanGenerator({ exam }: { exam: 'toefl' | 'toeic' }
                 key={w.week}
                 className={w.week % 2 ? 'border-t border-slate-100 dark:border-slate-800' : 'border-t border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40'}
               >
-                <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{w.week}</td>
-                <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{w.focal}</td>
-                <td className="px-4 py-3 text-slate-500 dark:text-slate-300">
-                  {minutes} min/day, rest on Sunday
+                <td className="px-4 py-3 font-semibold text-ink dark:text-white">{w.week}</td>
+                <td className="px-4 py-3 text-ink-soft dark:text-slate-300">{w.focal}</td>
+                <td className="px-4 py-3 text-ink-soft dark:text-slate-300">
+                  {minutes} min/jour, repos le dimanche
                 </td>
                 <td className="px-4 py-3">
                   {w.mock ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-600/10 px-2.5 py-1 text-xs font-bold text-brand-700 dark:text-brand-300">
-                      <Sparkles className="h-3 w-3" /> Mock test
+                    <span className="inline-flex items-center rounded-full bg-brand-600/10 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:text-brand-300">
+                      Test blanc
                     </span>
                   ) : (
-                    <span className="text-xs text-slate-400">{dayFocus(w.week)}</span>
+                    <span className="text-xs text-ink-faint dark:text-slate-500">{dayFocus(w.week)}</span>
                   )}
                 </td>
               </tr>
@@ -113,11 +113,11 @@ export default function StudyPlanGenerator({ exam }: { exam: 'toefl' | 'toeic' }
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <Link href="/diagnostic">
           <Button variant="accent" onClick={() => trackEvent('tool_used', { tool: `${exam}-study-plan` })}>
-            Start with the free diagnostic
+            Commencer par le diagnostic gratuit
           </Button>
         </Link>
-        <p className="text-xs text-slate-400">
-          Plans are guidance, not guarantees — adjust with your mock results.
+        <p className="text-xs text-ink-faint dark:text-slate-500">
+          Les plans sont des repères, pas des garanties — ajustez-les avec vos résultats de tests blancs.
         </p>
       </div>
     </div>

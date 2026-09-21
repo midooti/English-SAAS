@@ -6,9 +6,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Formate 9.99 -> "9,99" (fr) / "9.99" (en). */
+/** Formate 9.99 -> "9,99" (fr). */
 export function formatPrice(value: number) {
-  return value.toLocaleString('en-US', {
+  return value.toLocaleString('fr-FR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

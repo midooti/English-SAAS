@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import ExamLanding from '@/components/ExamLanding';
-import { SITE_URL } from '@/lib/config';
+import { seoMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Duolingo English Test Preparation',
+export const metadata: Metadata = seoMetadata({
+  title: 'Duolingo English Test — Préparation et niveau estimé | Prep-Anglais',
   description:
-    'Duolingo English Test preparation is coming soon. Build literacy, comprehension and conversation skills with ScoreUp’s free practice today.',
-  alternates: { canonical: `${SITE_URL}/duolingo-english-test` },
-};
+    'Le Duolingo English Test se passe en ligne, à domicile. Découvrez son format et évaluez votre niveau avec le diagnostic gratuit Prep-Anglais, sans inscription.',
+  path: '/duolingo-english-test',
+  overline: 'Duolingo English Test',
+});
 
 export default function DuolingoPage() {
   return <ExamLanding examKey="duolingo" />;

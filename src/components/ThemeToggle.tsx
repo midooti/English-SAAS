@@ -8,7 +8,7 @@ export function applyTheme(theme: 'light' | 'dark') {
   const root = document.documentElement;
   root.classList.toggle('dark', theme === 'dark');
   try {
-    localStorage.setItem('scoreup_theme', theme);
+    localStorage.setItem('prep_theme', theme);
   } catch {
     /* ignore */
   }
@@ -18,7 +18,7 @@ export default function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    const saved = localStorage.getItem('scoreup_theme') as 'light' | 'dark' | null;
+    const saved = localStorage.getItem('prep_theme') as 'light' | 'dark' | null;
     const initial: 'light' | 'dark' =
       saved ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     setTheme(initial);

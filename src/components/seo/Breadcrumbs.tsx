@@ -11,8 +11,8 @@ export default function Breadcrumbs({ items }: { items: Crumb[] }) {
   return (
     <>
       <JsonLd data={breadcrumbJsonLd(items)} />
-      <nav aria-label="Breadcrumb" className="mb-6">
-        <ol className="flex flex-wrap items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+      <nav aria-label="Fil d’Ariane" className="mb-6">
+        <ol className="flex flex-wrap items-center gap-1.5 text-sm text-ink-soft dark:text-slate-400">
           {items.map((item, i) => {
             const isLast = i === items.length - 1;
             return (
@@ -20,7 +20,7 @@ export default function Breadcrumbs({ items }: { items: Crumb[] }) {
                 {item.href && !isLast ? (
                   <Link
                     href={item.href}
-                    className="transition hover:text-brand-600 hover:underline dark:hover:text-brand-400"
+                    className="transition hover:text-brand-700 hover:underline dark:hover:text-brand-300"
                   >
                     {item.label}
                   </Link>
@@ -28,14 +28,14 @@ export default function Breadcrumbs({ items }: { items: Crumb[] }) {
                   <span
                     className={
                       isLast
-                        ? 'font-semibold text-slate-800 dark:text-white'
-                        : 'text-slate-500 dark:text-slate-400'
+                        ? 'font-semibold text-ink dark:text-white'
+                        : 'text-ink-soft dark:text-slate-400'
                     }
                   >
                     {item.label}
                   </span>
                 )}
-                {!isLast && <ChevronRight className="h-3.5 w-3.5 text-slate-300 dark:text-slate-600" />}
+                {!isLast && <ChevronRight className="h-3.5 w-3.5 text-ink-faint dark:text-slate-600" />}
               </li>
             );
           })}

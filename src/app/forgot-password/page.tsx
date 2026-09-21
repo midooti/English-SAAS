@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import AuthCard from '@/components/AuthCard';
 
 export const metadata: Metadata = {
-  title: 'Reset password',
-  description: 'Reset your ScoreUp password.',
+  title: 'Réinitialiser le mot de passe | Prep-Anglais',
+  description: 'Réinitialisez le mot de passe de votre compte Prep-Anglais.',
   robots: { index: false } as const,
 };
 

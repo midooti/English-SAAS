@@ -28,18 +28,18 @@ export default function EnglishLevelTest() {
     const percent = Math.round((correct / TOTAL) * 100);
     const band = (3 + (percent / 100) * 3).toFixed(1);
     return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-soft dark:border-slate-800 dark:bg-slate-900">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Your estimated level</p>
-        <p className="mt-2 text-6xl font-extrabold text-brand-600 dark:text-brand-400">{band}</p>
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          {correct}/{TOTAL} correct · {percent}% accuracy
+      <div className="rounded-lg border border-slate-200 bg-white p-8 text-center shadow-soft dark:border-slate-800 dark:bg-slate-900">
+        <p className="micro-label">Votre niveau estimé</p>
+        <p className="mt-2 font-serif text-6xl tracking-tight text-brand-700 dark:text-brand-300">{band}</p>
+        <p className="mt-2 text-sm text-ink-soft dark:text-slate-400">
+          {correct}/{TOTAL} bonnes réponses · {percent} %
         </p>
         <div className="mt-4 flex justify-center">
-          <ShareControls text={`My estimated English level is ${band} (free ScoreUp test)`} />
+          <ShareControls text={`Mon niveau d\u2019anglais estimé est ${band} sur 9 (test gratuit Prep-Anglais)`} />
         </div>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <LinkButton href="/diagnostic" variant="accent">
-            Take the full diagnostic <ArrowRight className="h-4 w-4" />
+            Passer le diagnostic complet <ArrowRight className="h-4 w-4" />
           </LinkButton>
           <Button
             variant="secondary"
@@ -49,10 +49,12 @@ export default function EnglishLevelTest() {
               setDone(false);
             }}
           >
-            <RotateCcw className="h-4 w-4" /> Retry
+            <RotateCcw className="h-4 w-4" /> Recommencer
           </Button>
         </div>
-        <p className="mt-4 text-xs text-slate-400">Estimate for guidance — not an official test score.</p>
+        <p className="mt-4 text-xs text-ink-faint dark:text-slate-500">
+          Estimation indicative — pas un score de test officiel.
+        </p>
       </div>
     );
   }
@@ -61,17 +63,17 @@ export default function EnglishLevelTest() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-4 flex items-center justify-between text-sm font-semibold text-slate-500 dark:text-slate-400">
-        <span>Question {index + 1} of {TOTAL}</span>
+      <div className="mb-4 flex items-center justify-between text-sm font-semibold text-ink-soft dark:text-slate-400">
+        <span>Question {index + 1} sur {TOTAL}</span>
         <button
           type="button"
-          className="text-brand-600 hover:underline dark:text-brand-400"
+          className="text-brand-700 hover:underline dark:text-brand-300"
           onClick={() => {
             setIndex(0);
             setCorrect(0);
           }}
         >
-          Restart
+          Recommencer
         </button>
       </div>
       <ProgressBar value={((index + 1) / TOTAL) * 100} className="mb-5" />
@@ -90,7 +92,7 @@ export default function EnglishLevelTest() {
             }
           }}
         >
-          {index >= TOTAL - 1 ? 'See my level' : 'Next'}
+          {index >= TOTAL - 1 ? 'Voir mon niveau' : 'Suivant'}
           {index < TOTAL - 1 && <ArrowRight className="h-4 w-4" />}
         </Button>
       </div>

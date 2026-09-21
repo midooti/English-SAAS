@@ -12,7 +12,7 @@ export async function generateStaticParams(): Promise<Params[]> {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const test = getMockTest(params.slug);
-  if (!test) return { title: 'Mock test not found' };
+  if (!test) return { title: 'Examen blanc introuvable' };
   return {
     title: test.title,
     description: test.description,

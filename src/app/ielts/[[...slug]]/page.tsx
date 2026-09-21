@@ -12,12 +12,12 @@ type Props = { params: { slug?: string[] } };
 const EXAM_SLUG = 'ielts';
 const EXAM_NAME = 'IELTS';
 const HUB = {
-  title: 'IELTS Preparation & Practice — Free Guided Study | ScoreUp',
+  title: 'Préparation à l\u2019IELTS — Guides, entraînement et plan d\u2019étude | Prep-Anglais',
   description:
-    'Prepare for IELTS Academic or General Training: format guides, band targets, free practice and a study plan for every timeline.',
-  h1: 'IELTS Preparation & Practice',
+    'Préparez l\u2019IELTS académique ou général : guides de format, objectifs de bande, entraînement gratuit et un plan d\u2019étude pour chaque échéance.',
+  h1: 'Préparation à l\u2019IELTS : méthode et pratique guidée',
   intro:
-    'Work through IELTS section by section: how the 0–9 band works, the exact question types, free practice, and a plan that fits your exam date.',
+    'Travaillez l\u2019IELTS section par section : le fonctionnement de la bande de 0 à 9, les types de questions exacts, l\u2019entraînement gratuit et un plan adapté à votre date d\u2019examen.',
 };
 
 export function generateStaticParams() {
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: HUB.title,
       description: HUB.description,
       path: `/${EXAM_SLUG}`,
-      overline: `${EXAM_NAME} preparation`,
+      overline: `Préparation ${EXAM_NAME}`,
     });
   }
   const data = findExamPage(EXAM_SLUG, parts.join('/'));

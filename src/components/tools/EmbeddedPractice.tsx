@@ -32,19 +32,19 @@ export default function EmbeddedPractice({
 
   if (done) {
     return (
-      <div className="rounded-3xl border border-brand-200 bg-gradient-to-br from-brand-50 to-accent-50 p-8 text-center dark:border-slate-800 dark:from-slate-900 dark:to-slate-900">
-        <p className="text-4xl font-extrabold text-brand-600 dark:text-brand-400">
+      <div className="rounded-lg border border-slate-200 bg-white p-8 text-center shadow-soft dark:border-slate-800 dark:bg-slate-900">
+        <p className="font-serif text-5xl tracking-tight text-brand-700 dark:text-brand-300">
           {correct}/{questions.length}
         </p>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+        <p className="mt-2 text-sm text-ink-soft dark:text-slate-400">
           {correct === count
-            ? 'Perfect — your skills are in great shape.'
-            : 'A solid start. The full practice library trains exactly these question types.'}
+            ? 'Parfait — vos compétences sont en excellente forme.'
+            : 'Un bon départ. La bibliothèque d\u2019entraînement complète travaille précisément ce type de questions.'}
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           <Link href="/diagnostic">
             <Button variant="accent">
-              Take the free diagnostic <ArrowRight className="h-4 w-4" />
+              Passer le diagnostic gratuit <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
           <Button
@@ -55,7 +55,7 @@ export default function EmbeddedPractice({
               setDone(false);
             }}
           >
-            Try again
+            Recommencer
           </Button>
         </div>
       </div>
@@ -66,8 +66,8 @@ export default function EmbeddedPractice({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <p className="mb-3 text-sm font-semibold text-slate-500 dark:text-slate-400">
-        Free practice — question {index + 1} of {questions.length}
+      <p className="mb-3 text-sm font-semibold text-ink-soft dark:text-slate-400">
+        Entraînement gratuit — question {index + 1} sur {questions.length}
       </p>
       <QuestionCard
         key={current.id}
@@ -88,7 +88,7 @@ export default function EmbeddedPractice({
             }
           }}
         >
-          {index >= questions.length - 1 ? 'See my result' : 'Next'}
+          {index >= questions.length - 1 ? 'Voir mon résultat' : 'Suivant'}
         </Button>
       </div>
     </div>

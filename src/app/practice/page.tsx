@@ -1,28 +1,32 @@
 import type { Metadata } from 'next';
 import PracticeApp from '@/components/PracticeApp';
+import { getCurrentUser } from '@/lib/auth';
 import { seoMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = seoMetadata({
-  title: 'Practice — Daily TOEFL, TOEIC & IELTS Exercises | ScoreUp',
+  title: 'Exercices d\u2019anglais quotidiens : TOEFL, TOEIC, IELTS | Prep-Anglais',
   description:
-    'Practice TOEFL, TOEIC, IELTS and more with original exercises, instant explanations and XP.',
+    'Entraînez-vous au TOEFL, TOEIC, IELTS, Cambridge English et Duolingo English Test avec des exercices originaux, corrigés et explications.',
   path: '/practice',
-  overline: 'Daily practice',
+  overline: 'Entraînement',
 });
 
-export default function PracticePage() {
+export default async function PracticePage() {
+  const user = await getCurrentUser();
+
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-3xl px-4 py-10">
       <header className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-          Practice
+        <p className="micro-label">Entraînement</p>
+        <h1 className="mt-3 font-serif text-3xl leading-tight tracking-tight text-ink sm:text-4xl dark:text-white">
+          Exercices quotidiens
         </h1>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
-          Pick your exam, skill and difficulty. Free plan includes a limited number of questions a
-          day.
+        <p className="mt-3 text-lg leading-relaxed text-ink-soft dark:text-slate-400">
+          Choisissez votre examen, votre compétence et votre niveau de difficulté.
+          La formule gratuite inclut un nombre limité de questions par jour.
         </p>
       </header>
-      <PracticeApp />
+      <PracticeApp premium={Boolean(user?.premium)} />
     </div>
   );
 }

@@ -3,19 +3,18 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/button';
-import { setDemoPremium } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
-
-type PlanSlug = 'premium_monthly' | 'premium_yearly';
+import { type PlanSlug } from '@/lib/config';
 
 /**
- * Bouton "Start Premium" :
+ * Bouton « Souscrire à Premium » :
  * - Stripe configuré      -> POST /api/checkout puis redirection Checkout.
- * - Stripe non configuré  -> message clair + activation de DÉMO (jamais un faux succès).
+ * - Stripe non configuré  -> message d'erreur franc (« service indisponible »),
+ *                            jamais d'activation de démo fantôme.
  */
 export default function PricingButton({
   plan,
-  label = 'Start Premium',
+  label = 'Souscrire à Premium',
   variant = 'primary',
   className,
 }: {
@@ -27,7 +26,6 @@ export default function PricingButton({
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [demo, setDemo] = useState(false);
 
   async function checkout() {
     setBusy(true);
@@ -47,51 +45,34 @@ export default function PricingButton({
 
       if (res.status === 503) {
         setMessage(
-          'Stripe is not configured yet (demo build). Use the demo toggle below to preview Premium.'
+          'Les paiements en ligne ne sont pas encore activés sur cette plateforme de test. Revenez plus tard.'
         );
-        setDemo(true);
         return;
       }
 
-      setMessage(data.error ?? 'Unable to start checkout. Please try again later.');
+      setMessage(data.error ?? 'Impossible de lancer la souscription. Réessayez dans quelques instants.');
     } catch {
-      setMessage('Unable to start checkout. Please try again later.');
+      setMessage('Impossible de lancer la souscription. Réessayez dans quelques instants.');
     } finally {
       setBusy(false);
     }
   }
 
-  function enableDemo() {
-    setDemoPremium(true);
-    setMessage('Premium preview enabled — reloading…');
-    setTimeout(() => router.refresh(), 600);
-  }
-
   return (
     <div className={className}>
-      <Button
-        variant={variant}
-        size="lg"
-        className={cn('w-full')}
-        onClick={checkout}
-        disabled={busy}
-      >
-        {busy ? 'Redirecting…' : label}
+      <Button variant={variant} size="lg" className={cn('w-full')} onClick={checkout} disabled={busy}>
+        {busy ? 'Redirection…' : label}
       </Button>
 
-      {message && (
-        <div className="mt-3 rounded-xl border border-slate-200 bg-white/80 p-3 text-center text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+      {message && message.startsWith('Les paiements') && (
+        <p className="mt-3 text-center text-xs leading-relaxed text-ink-faint dark:text-slate-500">
           {message}
-          {demo && (
-            <button
-              type="button"
-              onClick={enableDemo}
-              className="ml-2 font-bold text-brand-600 underline dark:text-brand-300"
-            >
-              Enable demo premium
-            </button>
-          )}
-        </div>
+        </p>
+      )}
+      {message && !message.startsWith('Les paiements') && (
+        <p className="mt-3 text-center text-xs leading-relaxed text-ink-soft dark:text-slate-400">
+          {message}
+        </p>
       )}
     </div>
   );

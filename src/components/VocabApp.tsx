@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { BookMarked, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import VocabularyCard from '@/components/VocabularyCard';
 import QuestionCard from '@/components/QuestionCard';
 import Paywall from '@/components/Paywall';
@@ -16,16 +16,27 @@ import {
 import { FREE_DAILY_LIMIT } from '@/lib/config';
 import type { Question } from '@/lib/questions';
 import { useUsageLimit } from '@/lib/usage';
+import { trackEvent } from '@/lib/analytics';
 
 const DEFAULT_CATEGORY: VocabCategory | 'daily' = 'daily';
 
-export default function VocabApp() {
+const categoryLabels: Record<VocabCategory, string> = {
+  Academic: 'Académique',
+  Business: 'Professionnel',
+  University: 'Université',
+  Travel: 'Voyage',
+  Technology: 'Technologie',
+  Science: 'Sciences',
+  'Daily English': 'Anglais courant',
+};
+
+export default function VocabApp({ premium }: { premium: boolean }) {
   const [category, setCategory] = useState<VocabCategory | 'daily'>(DEFAULT_CATEGORY);
   const [mode, setMode] = useState<'browse' | 'quiz'>('browse');
   const [quiz, setQuiz] = useState<Question[]>([]);
   const [quizIndex, setQuizIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
-  const { atLimit, consume, remaining, premium } = useUsageLimit();
+  const { atLimit, consume, remaining } = useUsageLimit(premium);
 
   const words = useMemo<VocabWord[]>(() => {
     if (category === 'daily') return vocabulary.slice(0, 8);
@@ -33,7 +44,7 @@ export default function VocabApp() {
   }, [category]);
 
   function startQuiz() {
-    // Quiz de DÉMO généré depuis la banque (mots -> QCM original).
+    // Quiz généré depuis la banque (mots -> QCM original).
     const shuffled = [...vocabulary].sort(() => Math.random() - 0.5).slice(0, 6);
     const build = shuffled.map<Question>((word, i) => {
       const distractors = vocabulary
@@ -48,16 +59,17 @@ export default function VocabApp() {
         skill: 'vocabulary',
         difficulty: word.difficulty,
         kind: 'mc',
-        prompt: `What does “${word.word}” mean?`,
+        prompt: `Que signifie « ${word.word} » ?`,
         options,
         correctIndex: options.indexOf(word.definition),
-        explanation: `${word.definition}. “${word.example}”`,
+        explanation: `${word.definition}. « ${word.example} »`,
       };
     });
     setQuiz(build);
     setQuizIndex(0);
     setCorrectCount(0);
     setMode('quiz');
+    trackEvent('vocabulary_started');
   }
 
   if (atLimit && mode === 'quiz') return <Paywall />;
@@ -67,12 +79,12 @@ export default function VocabApp() {
     const finished = quizIndex >= quiz.length - 1;
     return (
       <div className="mx-auto max-w-2xl">
-        <div className="mb-4 flex items-center justify-between text-sm font-semibold text-slate-500 dark:text-slate-400">
-          <span>Quiz {quizIndex + 1} of {quiz.length}</span>
+        <div className="mb-4 flex items-center justify-between text-sm font-semibold text-ink-soft dark:text-slate-400">
+          <span>Question {quizIndex + 1} sur {quiz.length}</span>
           <div className="flex items-center gap-2">
-            <Badge variant="success">{correctCount} correct</Badge>
+            <Badge variant="success">{correctCount} bonnes réponses</Badge>
             <Button variant="ghost" size="sm" onClick={() => setMode('browse')}>
-              <RotateCcw className="h-4 w-4" /> Quit
+              <RotateCcw className="h-4 w-4" /> Quitter
             </Button>
           </div>
         </div>
@@ -86,7 +98,7 @@ export default function VocabApp() {
         />
         <div className="mt-6 flex justify-end">
           <Button onClick={() => (finished ? setMode('browse') : setQuizIndex((i) => i + 1))}>
-            {finished ? 'Back to words' : 'Next'}
+            {finished ? 'Retour aux mots' : 'Question suivante'}
           </Button>
         </div>
       </div>
@@ -102,11 +114,11 @@ export default function VocabApp() {
             onClick={() => setCategory(DEFAULT_CATEGORY)}
             className={
               category === DEFAULT_CATEGORY
-                ? 'rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white'
-                : 'rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 dark:border-slate-700 dark:text-slate-300'
+                ? 'rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white'
+                : 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-ink-soft hover:border-brand-300 dark:border-slate-700 dark:text-slate-300'
             }
           >
-            Daily words
+            Mots du jour
           </button>
           {vocabCategories.map((c) => (
             <button
@@ -115,21 +127,23 @@ export default function VocabApp() {
               onClick={() => setCategory(c)}
               className={
                 category === c
-                  ? 'rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white'
-                  : 'rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-brand-300 dark:border-slate-700 dark:text-slate-300'
+                  ? 'rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white'
+                  : 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-ink-soft hover:border-brand-300 dark:border-slate-700 dark:text-slate-300'
               }
             >
-              {c}
+              {categoryLabels[c]}
             </button>
           ))}
         </div>
-        <Button variant="accent" onClick={startQuiz}>
-          <BookMarked className="h-4 w-4" /> Start quiz
+        <Button variant="primary" onClick={startQuiz}>
+          Lancer un quiz
         </Button>
       </div>
 
       {!premium && (
-        <Badge variant="neutral">Free: {remaining}/{FREE_DAILY_LIMIT} quiz answers today</Badge>
+        <Badge variant="neutral">
+          Quiz gratuits aujourd&apos;hui : {remaining}/{FREE_DAILY_LIMIT}
+        </Badge>
       )}
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

@@ -12,12 +12,12 @@ type Props = { params: { slug?: string[] } };
 const EXAM_SLUG = 'toeic';
 const EXAM_NAME = 'TOEIC';
 const HUB = {
-  title: 'TOEIC Preparation & Practice — Free Guided Study | ScoreUp',
+  title: 'Préparation au TOEIC — Guides, entraînement et plan d\u2019étude | Prep-Anglais',
   description:
-    'Prepare for the TOEIC with free guides for Listening and Reading, original practice questions, a score calculator and a study plan.',
-  h1: 'TOEIC Preparation & Practice',
+    'Préparez le TOEIC avec des guides gratuits pour la compréhension écrite et orale, des questions d\u2019entraînement originales, un calculateur de score et un plan d\u2019étude.',
+  h1: 'Préparation au TOEIC : méthode et pratique guidée',
   intro:
-    'Work through the TOEIC section by section: how the test is scored, the exact question types in Listening and Reading, free practice, and a plan that fits your timeline.',
+    'Travaillez le TOEIC section par section : mode de notation du test, types de questions exacts en compréhension écrite et orale, entraînement gratuit et un plan adapté à votre échéance.',
 };
 
 export function generateStaticParams() {
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: HUB.title,
       description: HUB.description,
       path: `/${EXAM_SLUG}`,
-      overline: `${EXAM_NAME} preparation`,
+      overline: `Préparation ${EXAM_NAME}`,
     });
   }
   const data = findExamPage(EXAM_SLUG, parts.join('/'));

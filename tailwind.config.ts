@@ -1,5 +1,12 @@
 import type { Config } from 'tailwindcss';
 
+/**
+ * Thème Prep-Anglais — direction éditoriale académique.
+ * - brand : bleu marine profond (identité primaire)
+ * - accent : bleu sauvegardé, discret (rare, réservé aux liens/points forts)
+ * - papiers : blanc / écru / charbon
+ * - Séries editoriale : font-serif (Lora) pour les grands titres.
+ */
 const config: Config = {
   darkMode: 'class',
   content: ['./src/**/*.{ts,tsx}'],
@@ -7,56 +14,60 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          50: '#f4f6fa',
+          100: '#e8ecf3',
+          200: '#ccd6e3',
+          300: '#a6b7ca',
+          400: '#7b92ab',
+          500: '#5b748d',
+          600: '#455a72',
+          700: '#36485c',
+          800: '#293848',
+          900: '#1d2936',
+          950: '#101820',
         },
         accent: {
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',
-          700: '#7e22ce',
+          50: '#eef4fa',
+          100: '#dbe7f3',
+          200: '#b7cfe7',
+          300: '#8ab2d6',
+          400: '#5f92c2',
+          500: '#4677a9',
+          600: '#315f8c',
+          700: '#294c6f',
+          800: '#233b56',
+          900: '#182b40',
+          950: '#0e1c2e',
+        },
+        paper: {
+          DEFAULT: '#fbf9f4',
+          warm: '#f6f3ec',
+          line: '#e7e2d8',
         },
         ink: {
-          DEFAULT: '#0f172a',
-          light: '#475569',
+          DEFAULT: '#1d2936',
+          soft: '#55657a',
+          faint: '#8593a6',
         },
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Georgia', 'serif'],
       },
       boxShadow: {
-        soft: '0 2px 20px -4px rgb(15 23 42 / 0.08)',
-        lift: '0 12px 32px -12px rgb(79 70 229 / 0.35)',
+        soft: '0 1px 2px rgb(29 41 54 / 0.04), 0 8px 24px -16px rgb(29 41 54 / 0.12)',
+        lift: '0 2px 4px rgb(29 41 54 / 0.05), 0 18px 40px -24px rgb(29 41 54 / 0.28)',
       },
-      borderRadius: {
-        '2xl': '1rem',
-        '3xl': '1.5rem',
+      maxWidth: {
+        '8xl': '90rem',
       },
       animation: {
-        'fade-up': 'fadeUp 0.5s ease-out both',
-        float: 'float 6s ease-in-out infinite',
+        'fade-up': 'fadeUp 0.4s ease-out both',
       },
       keyframes: {
         fadeUp: {
-          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        float: {
-          '0%,100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
         },
       },
     },

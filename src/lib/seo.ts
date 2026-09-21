@@ -17,7 +17,7 @@ export type SeoInput = {
   description: string;
   /** Chemin public (ex: /toefl/reading). */
   path: string;
-  /** Petit libellé au-dessus du titre OG (ex: "Free TOEFL practice"). */
+  /** Petit libellé au-dessus du titre OG (ex: « TOEFL · Examen »). */
   overline?: string;
   /** True pour noindex, nofollow (pages privées / outils internes). */
   noindex?: boolean;
@@ -67,14 +67,14 @@ export function seoMetadata(input: SeoInput): Metadata {
       type: 'website',
       url: absolutePath(input.path),
       siteName: SITE_NAME,
-      locale: 'en_US',
+      locale: 'fr_FR',
       title: input.title,
       description: input.description,
       images: [
         {
           url: ogImageUrl({
             title: input.title,
-            overline: input.overline ?? 'ScoreUp',
+            overline: input.overline ?? 'Préparation aux examens d\u2019anglais',
             exam: input.overline,
           }),
           width: 1200,
@@ -88,7 +88,7 @@ export function seoMetadata(input: SeoInput): Metadata {
       title: input.title,
       description: input.description,
       images: [
-        ogImageUrl({ title: input.title, overline: input.overline ?? 'ScoreUp', exam: input.overline }),
+        ogImageUrl({ title: input.title, overline: input.overline ?? 'Préparation aux examens d\u2019anglais', exam: input.overline }),
       ],
     },
     robots: {
@@ -109,7 +109,7 @@ export function orgWebSiteJsonLd() {
         name: SITE_NAME,
         url: SITE_URL,
         slogan: SITE_TAGLINE,
-        logo: ogImageUrl({ title: SITE_NAME, overline: 'ScoreUp' }),
+        logo: ogImageUrl({ title: SITE_NAME, overline: 'Prep-Anglais' }),
       },
       {
         '@type': 'WebSite',

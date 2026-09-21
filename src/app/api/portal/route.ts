@@ -10,14 +10,14 @@ export async function POST(_req: NextRequest) {
   try {
     if (!stripeConfigured) {
       return NextResponse.json(
-        { error: 'STRIPE_NOT_CONFIGURED' },
+        { error: 'Les paiements en ligne ne sont pas encore activés.' },
         { status: 503 }
       );
     }
 
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifié.' }, { status: 401 });
     }
 
     let customerId: string | null = null;
@@ -37,7 +37,7 @@ export async function POST(_req: NextRequest) {
 
     if (!customerId) {
       return NextResponse.json(
-        { error: 'No billing customer found.' },
+        { error: 'Aucun abonnement actif pour ce compte.' },
         { status: 400 }
       );
     }
@@ -46,12 +46,15 @@ export async function POST(_req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${baseUrl}/dashboard`,
+      return_url: `${baseUrl}/account`,
     });
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error('[portal]', err);
-    return NextResponse.json({ error: 'Unable to open billing portal.' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Impossible d\u2019ouvrir l\u2019espace de gestion.' },
+      { status: 500 }
+    );
   }
 }

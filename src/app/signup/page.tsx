@@ -4,8 +4,9 @@ import AuthCard from '@/components/AuthCard';
 import { getCurrentUser } from '@/lib/auth';
 
 export const metadata: Metadata = {
-  title: 'Create account',
-  description: 'Create your free ScoreUp account and get an estimated English level.',
+  title: 'Créer un compte | Prep-Anglais',
+  description:
+    'Créez votre compte gratuit Prep-Anglais et obtenez une estimation de votre niveau d\u2019anglais.',
   robots: { index: false } as const,
 };
 

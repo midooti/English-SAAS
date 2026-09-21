@@ -1,37 +1,42 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getStripe, stripeConfigured, getPriceIdForPlan } from '@/lib/stripe';
-import { PLANS, HAS_SUPABASE } from '@/lib/config';
+import { PLANS_BY_SLUG, HAS_SUPABASE, type PlanSlug } from '@/lib/config';
 import { getCurrentUser } from '@/lib/auth';
 import { createSupabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
+function baseUrl() {
+  return process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json().catch(() => ({}))) as { plan?: string };
     const slug = body.plan;
-    if (!slug || !(slug in PLANS)) {
-      return NextResponse.json({ error: 'Invalid plan.' }, { status: 400 });
+    if (!slug || !(slug in PLANS_BY_SLUG)) {
+      return NextResponse.json({ error: 'Formule inconnue.' }, { status: 400 });
     }
 
     if (!stripeConfigured) {
       return NextResponse.json(
-        { error: 'STRIPE_NOT_CONFIGURED' },
+        { error: 'Les paiements en ligne ne sont pas encore activés.' },
         { status: 503 }
       );
     }
 
-    const priceId = getPriceIdForPlan(slug as keyof typeof PLANS);
+    const planSlug = slug as PlanSlug;
+    const priceId = getPriceIdForPlan(planSlug);
     if (!priceId) {
       return NextResponse.json(
-        { error: 'STRIPE_PRICE_NOT_CONFIGURED' },
+        { error: 'Le tarif de cette formule n\u2019est pas configuré.' },
         { status: 503 }
       );
     }
 
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifié.' }, { status: 401 });
     }
 
     const stripe = getStripe();
@@ -56,10 +61,7 @@ export async function POST(req: NextRequest) {
       const customer = await stripe.customers.create({
         email: user.email,
         name: user.name,
-        metadata: {
-          user_id: user.id,
-          source: demoUserOnly(),
-        },
+        metadata: { user_id: user.id },
       });
       customerId = customer.id;
 
@@ -80,9 +82,9 @@ export async function POST(req: NextRequest) {
       mode: 'subscription',
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
-      metadata: { user_id: user.id, is_demo: demoUserOnly() },
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/dashboard?checkout=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/pricing?checkout=cancelled`,
+      metadata: { user_id: user.id, plan: planSlug },
+      success_url: `${baseUrl()}/dashboard?checkout=success`,
+      cancel_url: `${baseUrl()}/pricing?checkout=cancelled`,
       allow_promotion_codes: true,
     });
 
@@ -90,12 +92,8 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[checkout]', err);
     return NextResponse.json(
-      { error: 'Unable to start checkout.' },
+      { error: 'Impossible de lancer la souscription. Réessayez dans quelques instants.' },
       { status: 500 }
     );
   }
-}
-
-function demoUserOnly(): string {
-  return HAS_SUPABASE ? 'supabase' : 'demo';
 }

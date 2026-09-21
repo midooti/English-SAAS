@@ -1,45 +1,62 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { GraduationCap, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
-import { useDemoUser } from '@/components/providers';
+import { useUser } from '@/components/providers';
+import { signOut } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 
 const links = [
   { href: '/tests', label: 'Tests' },
-  { href: '/practice', label: 'Practice' },
-  { href: '/vocabulary', label: 'Vocabulary' },
-  { href: '/mock-tests', label: 'Mock Tests' },
-  { href: '/pricing', label: 'Pricing' },
+  { href: '/toefl', label: 'Préparation' },
+  { href: '/practice', label: 'Exercices' },
+  { href: '/vocabulary', label: 'Vocabulaire' },
+  { href: '/mock-tests', label: 'Examens blancs' },
+  { href: '/pricing', label: 'Tarifs' },
 ];
 
+function Wordmark({ onClick }: { onClick?: () => void }) {
+  return (
+    <Link
+      href="/"
+      onClick={onClick}
+      className="shrink-0 font-serif text-xl tracking-tight text-ink dark:text-white"
+      aria-label="Prep-Anglais, accueil"
+    >
+      Prep<span className="font-semibold">-Anglais</span>
+    </Link>
+  );
+}
+
 export default function Navbar() {
-  const { user } = useDemoUser();
+  const router = useRouter();
+  const { user, loading } = useUser();
   const [open, setOpen] = useState(false);
 
+  async function handleSignOut() {
+    await signOut();
+    setOpen(false);
+    router.refresh();
+    router.push('/');
+  }
+
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-paper/95 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/95">
       <nav
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+        className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8"
         aria-label="Navigation principale"
       >
-        <Link href="/" className="flex items-center gap-2" aria-label="ScoreUp, accueil">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-accent-600 text-white shadow-lift">
-            <GraduationCap className="h-5 w-5" />
-          </span>
-          <span className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-            ScoreUp
-          </span>
-        </Link>
+        <Wordmark />
 
-        <ul className="hidden items-center gap-1 lg:flex">
+        <ul className="hidden items-center gap-0.5 lg:flex">
           {links.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                className="rounded-md px-3 py-2 text-sm font-medium text-ink-soft transition hover:bg-slate-100 hover:text-ink dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
               >
                 {link.label}
               </Link>
@@ -50,35 +67,41 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {user ? (
-            <Link
-              href="/dashboard"
-              className="hidden h-10 items-center gap-2 rounded-xl bg-slate-100 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 sm:flex dark:bg-slate-800 dark:text-white"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-500 text-xs font-bold text-white">
-                {(user.name ?? 'U').slice(0, 1).toUpperCase()}
-              </span>
-              {user.name}
-            </Link>
+            <>
+              <Link
+                href="/dashboard"
+                className="hidden h-9 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-ink-soft transition hover:text-brand-700 sm:flex dark:text-slate-300"
+              >
+                {user.name}
+              </Link>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="hidden h-9 items-center rounded-lg px-3 text-sm font-semibold text-ink-soft transition hover:bg-slate-100 hover:text-ink sm:inline-flex dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Se déconnecter
+              </button>
+            </>
           ) : (
             <div className="hidden items-center gap-2 sm:flex">
               <Link
                 href="/login"
-                className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+                className="rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft transition hover:text-ink dark:text-slate-300 dark:hover:text-white"
               >
-                Log in
+                Se connecter
               </Link>
               <Link
                 href="/signup"
-                className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-700"
+                className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800"
               >
-                Start free
+                Commencer gratuitement
               </Link>
             </div>
           )}
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 lg:hidden dark:border-slate-700 dark:text-slate-300"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-ink-soft lg:hidden dark:border-slate-700 dark:text-slate-300"
             aria-expanded={open}
             aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
             onClick={() => setOpen((o) => !o)}
@@ -88,55 +111,60 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Menu mobile */}
-      <div
-        className={cn(
-          'lg:hidden',
-          open ? 'block border-t border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950' : 'hidden'
-        )}
-      >
-        <ul className="space-y-1">
-          {links.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-3 flex gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
-          {user ? (
-            <Link
-              href="/dashboard"
-              onClick={() => setOpen(false)}
-              className="flex-1 rounded-xl bg-brand-600 px-4 py-2.5 text-center text-sm font-semibold text-white"
-            >
-              Dashboard
-            </Link>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-center text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-white"
-              >
-                Log in
-              </Link>
+      {open && (
+        <div className="border-t border-slate-200 bg-paper px-4 py-4 lg:hidden dark:border-slate-800 dark:bg-slate-950">
+          <ul className="space-y-1">
+            {links.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-md px-3 py-2.5 text-sm font-medium text-ink hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 flex flex-col gap-2 border-t border-slate-200 pt-3 dark:border-slate-800">
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg bg-brand-700 px-4 py-2.5 text-center text-sm font-semibold text-white"
+                >
+                  Mon espace
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="rounded-lg border border-slate-200 px-4 py-2.5 text-center text-sm font-semibold text-ink-soft dark:border-slate-700 dark:text-slate-300"
+                >
+                  Se déconnecter
+                </button>
+              </>
+            ) : (
               <Link
                 href="/signup"
                 onClick={() => setOpen(false)}
-                className="flex-1 rounded-xl bg-brand-600 px-4 py-2.5 text-center text-sm font-semibold text-white"
+                className="rounded-lg bg-brand-700 px-4 py-2.5 text-center text-sm font-semibold text-white"
               >
-                Start free
+                Commencer gratuitement
               </Link>
-            </>
-          )}
+            )}
+            {loading && user === null && (
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="rounded-lg border border-slate-200 px-4 py-2.5 text-center text-sm font-semibold text-ink-soft dark:border-slate-700 dark:text-slate-300"
+              >
+                Se connecter
+              </Link>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }

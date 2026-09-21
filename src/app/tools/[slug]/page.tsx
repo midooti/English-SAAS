@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: tool.title,
     description: tool.description,
     path: `/tools/${tool.slug}`,
-    overline: 'Free tool',
+    overline: 'Outil gratuit',
   });
 }
 
@@ -52,16 +52,14 @@ export default function ToolPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Free tools', href: '/tools' }, { label: tool.h1 }]} />
+      <Breadcrumbs items={[{ label: 'Accueil', href: '/' }, { label: 'Outils gratuits', href: '/tools' }, { label: tool.h1 }]} />
 
       <header>
-        <p className="text-sm font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">
-          Free tool — no sign-up
-        </p>
-        <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
+        <p className="micro-label">Outil gratuit — sans inscription</p>
+        <h1 className="mt-3 font-serif text-4xl leading-tight tracking-tight text-ink sm:text-5xl dark:text-white">
           {tool.h1}
         </h1>
-        <p className="mt-4 text-lg leading-relaxed text-slate-500 dark:text-slate-400">{tool.intro}</p>
+        <p className="mt-4 text-lg leading-relaxed text-ink-soft dark:text-slate-400">{tool.intro}</p>
       </header>
 
       <div className="mt-8">
